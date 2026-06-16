@@ -16,6 +16,7 @@
 - **JWT Token UserId 类型** — `User.FindFirstValue` 返回 string，必须 `int.TryParse` 转换，不能直接赋值
 - **echarts-for-weixin 与微信基础库不兼容** — 情绪曲线改用原生 Canvas 2D API，不依赖 echarts-for-weixin
 - **DeepSeek tool_call_id 字段丢失** — 必须从原始 `JsonElement` 取，不能用 `ChatMessage` 类重建，否则报 400
+- **DeepSeek tool arguments 类型** — `JsonSerializer.Deserialize<Dictionary<string, object?>>` 后的值是 `JsonElement` 类型，不能用 `Convert.ToInt32` / `Convert.ToString`，统一用 `BaseAiAgentService.GetInt` / `GetString` 系列方法
 - **Bangumi API 返回格式** — 批量查询返回 `{"data": [...], "total": N}`，不是直接数组，需用 `BangumiSubjectListDto` 包装
 - **Bangumi V0 搜索接口** — 必须用 `POST /v0/search/subjects`，带 JSON 请求体 `{keyword, filter: {type: [2]}}`，`limit` 作为 URL Query 参数；旧版 GET `/v0/subjects?q=` 会被 Bangumi 降级为默认热门列表
 - **Bangumi UserAgent 写法** — 需用 `UserAgent.ParseAdd()` 解析含空格/括号的 UA 字符串，直接 `Add()` 会抛 FormatException
