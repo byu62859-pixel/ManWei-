@@ -36,8 +36,5 @@ body {
   position: static !important;
 }
 
-/* Dark toast */
-.dark-toast .ant-notification-notice-icon { display: none; }
-.dark-toast .ant-notification-notice-close { color: #a1a1aa; opacity: 0.6; }
-.dark-toast .ant-notification-notice-message,
-.dark-toast .ant-notification-notice-description { color: #fff !important; }
+/* Dark toast — minimalist-ui */
+.dark-toast .ant-notification-notice-close { color: rgba(255,255,255,0.35); }
