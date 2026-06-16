@@ -73,10 +73,10 @@ public class PcAiAgentService : BaseAiAgentService
     private async Task<string> QueryMyFavoritesAsync(
         Dictionary<string, object?> args, CancellationToken ct)
     {
-        var status = args.TryGetValue("status", out var s) && s != null
-            ? Convert.ToInt32(s) : (int?)null;
-        var take = args.TryGetValue("take", out var t) && t != null
-            ? Convert.ToInt32(t) : 10;
+        // 使用 BaseAiAgentService.GetInt 而非 Convert.ToInt32——参数值是 JsonElement 类型
+        var hasStatus = args.TryGetValue("status", out var s) && s != null;
+        var status = hasStatus ? GetInt(args, "status", -1) : (int?)null;
+        var take = GetInt(args, "take", 10);
 
         var query = _context.Favorites
             .Where(f => f.UserId == _userId);
