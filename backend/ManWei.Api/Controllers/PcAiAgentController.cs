@@ -47,7 +47,7 @@ public class PcAiAgentController : ControllerBase
         _service.SetUserId(userId);
 
         Response.ContentType = "application/x-ndjson; charset=utf-8";
-        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.CacheControl = "no-store";
 
         try
         {
@@ -75,7 +75,7 @@ public class PcAiAgentController : ControllerBase
             try
             {
                 await Response.WriteAsync(
-                    $"{{\"type\":\"error\",\"error\":\"AI 服务错误: {ex.Message}\"}}\n",
+                    "{\"type\":\"error\",\"error\":\"AI 服务暂时不可用，请稍后重试\"}\n",
                     CancellationToken.None);
             }
             catch { /* connection probably dead */ }
