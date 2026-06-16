@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Drawer, Input, Button, Empty } from 'antd';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { AiAssistantIcon } from '../AiAssistantIcon';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { streamChat } from '../../services/chat';
@@ -151,7 +152,19 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       <div className={styles.bubbleContent}>
         {isUser
           ? message.content
-          : <Markdown>{message.content}</Markdown>
+          : (
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => <p className={styles.mdParagraph}>{children}</p>,
+                table: ({ children }) => <table className={styles.mdTable}>{children}</table>,
+                th: ({ children }) => <th className={styles.mdTh}>{children}</th>,
+                td: ({ children }) => <td className={styles.mdTd}>{children}</td>,
+              }}
+            >
+              {message.content}
+            </Markdown>
+          )
         }
         {message.isStreaming && <span className={styles.cursor}>&#x25CD;</span>}
         {message.isStreaming && message.toolCalls?.map(tc => (
