@@ -154,9 +154,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           : <Markdown>{message.content}</Markdown>
         }
         {message.isStreaming && <span className={styles.cursor}>&#x25CD;</span>}
-        {message.toolCalls?.map(tc => (
+        {message.isStreaming && message.toolCalls?.map(tc => (
           <details key={tc.id} className={styles.toolCall}>
-            <summary>调用了 {tc.name}</summary>
+            <summary>正在查询...</summary>
             <pre>{(() => {
               try { return JSON.stringify(JSON.parse(tc.resultJson || '{}'), null, 2); }
               catch { return tc.resultJson || '{}'; }
