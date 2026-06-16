@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Modal } from 'antd';
+import { Button, Modal } from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../stores/authStore';
+import { useAiAssistantStore } from '../../stores/aiAssistantStore';
+import { AiAssistantDrawer } from '../AiAssistantDrawer';
 import styles from './AppShell.module.css';
 
 const getInitial = (name?: string | null) => {
@@ -11,6 +14,7 @@ const getInitial = (name?: string | null) => {
 
 export function AppShell() {
   const navigate = useNavigate();
+  const openDrawer = useAiAssistantStore(s => s.openDrawer);
   const { userInfo, fetchMe, logout } = useAuthStore();
 
   useEffect(() => {
@@ -64,12 +68,21 @@ export function AppShell() {
               )}
               <span className={styles.userName}>{userInfo?.nickName || '用户'}</span>
             </NavLink>
+            <Button
+              type="text"
+              icon={<RobotOutlined />}
+              onClick={openDrawer}
+              className={styles.aiButton}
+            >
+              AI 助手
+            </Button>
             <button className={styles.logoutBtn} type="button" onClick={handleLogout}>退出</button>
           </div>
         </div>
       </header>
 
       <Outlet />
+      <AiAssistantDrawer />
     </div>
   );
 }

@@ -137,3 +137,7 @@
     overflow-x: auto;
   }
 }
+
+.aiButton {
+  font-size: 14px;
+}
