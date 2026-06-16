@@ -81,13 +81,13 @@ export function AiAssistantDrawer() {
     <Drawer
       title={
         <div className={styles.drawerHeader}>
-          <AiAssistantIcon style={{ fontSize: 18 }} />
+          <AiAssistantIcon style={{ fontSize: 22 }} />
           <span>AI 助手</span>
           <span className={styles.statusDot} data-streaming={isStreaming} />
         </div>
       }
       placement="right"
-      width={480}
+      size={480}
       open={isOpen}
       onClose={closeDrawer}
       closeIcon={<CloseOutlined />}
