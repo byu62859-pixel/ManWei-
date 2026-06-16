@@ -36,19 +36,8 @@ body {
   position: static !important;
 }
 
-/* Dark toast: hide default antd notification icon wrapper */
-.dark-toast .ant-notification-notification-icon {
-  display: none;
-}
-.dark-toast .ant-notification-notification-message {
-  color: #a1a1aa;
-  font-size: 12px;
-  font-weight: 400;
-  margin-bottom: 2px;
-}
-.dark-toast .ant-notification-notification-description {
-  color: #fff;
-}
-.dark-toast .ant-notification-notification-close {
-  color: #a1a1aa;
-}
+/* Dark toast */
+.dark-toast .ant-notification-notice-icon { display: none; }
+.dark-toast .ant-notification-notice-close { color: #a1a1aa; opacity: 0.6; }
+.dark-toast .ant-notification-notice-message,
+.dark-toast .ant-notification-notice-description { color: #fff !important; }
