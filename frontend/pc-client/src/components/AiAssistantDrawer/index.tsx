@@ -21,20 +21,16 @@ export function AiAssistantDrawer() {
   const patchToolCallResult = useAiAssistantStore(s => s.patchToolCallResult);
   const finishAssistantMessage = useAiAssistantStore(s => s.finishAssistantMessage);
   const markAssistantError = useAiAssistantStore(s => s.markAssistantError);
-  const reset = useAiAssistantStore(s => s.reset);
-
   const [input, setInput] = useState('');
   const abortRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 关闭时清空消息 (用户已确认不持久化)
-  useEffect(() => {
-    if (!isOpen) {
-      abortRef.current?.abort();
-      reset();
-      setInput('');
-    }
-  }, [isOpen, reset]);
+  // 关闭时中止正在进行的请求, 但保留消息记录
+  const handleClose = () => {
+    abortRef.current?.abort();
+    setInput('');
+    closeDrawer();
+  };
 
   // 自动滚动到底部
   useEffect(() => {
@@ -89,7 +85,7 @@ export function AiAssistantDrawer() {
       placement="right"
       size={480}
       open={isOpen}
-      onClose={closeDrawer}
+      onClose={handleClose}
       closeIcon={<CloseOutlined />}
       styles={{ body: { padding: 0 } }}
     >

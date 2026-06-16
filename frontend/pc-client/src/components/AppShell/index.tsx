@@ -34,6 +34,7 @@ export function AppShell() {
       cancelText: '取消',
       okButtonProps: { danger: true },
       onOk: () => {
+        useAiAssistantStore.getState().reset();
         logout();
         navigate('/login');
       },
