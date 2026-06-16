@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -26,7 +27,7 @@ public abstract class BaseAiAgentService
     protected async Task<JsonElement> CallDeepSeekAsync(List<object> messages, CancellationToken ct)
     {
         var client = _httpClientFactory.CreateClient("DeepSeek");
-        var apiKey = _config["DeepSeek:ApiKey"];
+        var apiKey = ResolveApiKey();
         var model = _config["DeepSeek:Model"] ?? "deepseek-chat";
 
         _logger.LogInformation("[AI] 开始构建请求，消息数: {Count}", messages.Count);
@@ -95,6 +96,21 @@ public abstract class BaseAiAgentService
         }
 
         return message;
+    }
+
+    private string ResolveApiKey()
+    {
+        // 优先 env var (约定: DEEPSEEK__APIKEY)
+        var envKey = Environment.GetEnvironmentVariable("DEEPSEEK__APIKEY");
+        if (!string.IsNullOrWhiteSpace(envKey)) return envKey;
+
+        // fallback: appsettings.json (仅 dev 兜底)
+        var configKey = _config["DeepSeek:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(configKey)) return configKey;
+
+        throw new InvalidOperationException(
+            "DeepSeek API key not configured. Set DEEPSEEK__APIKEY env var " +
+            "or DeepSeek:ApiKey in appsettings (dev only).");
     }
 
     protected static string ExtractContent(JsonElement message)
