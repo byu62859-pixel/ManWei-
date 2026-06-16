@@ -81,7 +81,7 @@ export function AiAssistantDrawer() {
     <Drawer
       title={
         <div className={styles.drawerHeader}>
-          <AiAssistantIcon style={{ fontSize: 22 }} />
+          <AiAssistantIcon style={{ width: 28, height: 28, fontSize: 28 }} />
           <span>AI 助手</span>
           <span className={styles.statusDot} data-streaming={isStreaming} />
         </div>
