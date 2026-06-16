@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ManWei.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,13 @@ public class PcAiAgentController : ControllerBase
 {
     private readonly PcAiAgentService _service;
     private readonly ILogger<PcAiAgentController> _logger;
+
+    // 复用静态实例, 避免每次序列化都 new 一个 JsonSerializerOptions
+    private static readonly JsonSerializerOptions _ndjsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     public PcAiAgentController(
         PcAiAgentService service,
@@ -58,7 +66,7 @@ public class PcAiAgentController : ControllerBase
                 },
                 ct))
             {
-                var json = JsonSerializer.Serialize(evt);
+                var json = JsonSerializer.Serialize(evt, _ndjsonOptions);
                 await Response.WriteAsync(json + "\n", ct);
                 await Response.Body.FlushAsync(ct);
             }
@@ -85,7 +93,9 @@ public class PcAiAgentController : ControllerBase
 
 public class PcChatRequestDto
 {
+    [JsonPropertyName("message")]
     public string Message { get; set; } = "";
     // History 字段保留但不传给后端 (前端 UI 多轮但 server 无状态)
+    [JsonPropertyName("history")]
     public List<object>? History { get; set; }
 }
