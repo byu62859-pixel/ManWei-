@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Drawer, Input, Button, Empty } from 'antd';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
+import Markdown from 'react-markdown';
 import { AiAssistantIcon } from '../AiAssistantIcon';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { streamChat } from '../../services/chat';
@@ -148,7 +149,10 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className={`${styles.bubble} ${isUser ? styles.user : styles.assistant}`}>
       <div className={styles.bubbleContent}>
-        {message.content}
+        {isUser
+          ? message.content
+          : <Markdown>{message.content}</Markdown>
+        }
         {message.isStreaming && <span className={styles.cursor}>&#x25CD;</span>}
         {message.toolCalls?.map(tc => (
           <details key={tc.id} className={styles.toolCall}>
