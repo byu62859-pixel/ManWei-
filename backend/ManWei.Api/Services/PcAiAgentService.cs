@@ -107,10 +107,16 @@ public class PcAiAgentService : BaseAiAgentService
             .CountAsync(f => f.UserId == userId && f.Status == 1, ct);
         var watched = await _context.Favorites
             .CountAsync(f => f.UserId == userId && f.Status == 2, ct);
-        var avgRating = await _context.Favorites
-            .Where(f => f.UserId == userId && f.Rating != null)
-            .Select(f => (double?)f.Rating)
-            .AverageAsync(ct);
+
+        // AverageAsync throws InvalidOperationException on empty set — handle gracefully
+        double? avgRating = null;
+        if (await _context.Favorites.AnyAsync(f => f.UserId == userId && f.Rating != null, ct))
+        {
+            avgRating = await _context.Favorites
+                .Where(f => f.UserId == userId && f.Rating != null)
+                .Select(f => (double?)f.Rating)
+                .AverageAsync(ct);
+        }
 
         return JsonSerializer.Serialize(new
         {
@@ -124,9 +130,9 @@ public class PcAiAgentService : BaseAiAgentService
     private async Task<string> QueryEmotionCurveAsync(
         Dictionary<string, object?> args, CancellationToken ct)
     {
-        if (!args.TryGetValue("animeId", out var aidObj) || aidObj == null)
-            return """{"error":"animeId required"}""";
-        var animeId = Convert.ToInt32(aidObj);
+        // Reuse base helper for robust int parsing (handles JsonElement / string / number)
+        var animeId = GetInt(args, "animeId", 0);
+        if (animeId <= 0) return """{"error":"animeId required"}""";
 
         var userId = _userId!.Value;
         var fav = await _context.Favorites
