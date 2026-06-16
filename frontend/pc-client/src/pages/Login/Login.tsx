@@ -31,7 +31,8 @@ export function Login() {
       await login(userName, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.message || '登录失败，请检查用户名和密码');
+      const message = err.response?.data?.message || err.message || '登录失败，请检查用户名和密码';
+      setError(message);
     } finally {
       setLoading(false);
     }

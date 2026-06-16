@@ -23,7 +23,7 @@ request.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
       localStorage.removeItem('mw_token');
       window.location.href = '/login';
     }
