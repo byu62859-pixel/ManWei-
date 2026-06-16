@@ -50,6 +50,7 @@ builder.Services.AddHttpClient("DeepSeek", client =>
 // 注册 AI Agent Service
 builder.Services.AddScoped<IAiAgentService, AiAgentService>();
 builder.Services.AddScoped<WxAiAgentService>();
+builder.Services.AddScoped<PcAiAgentService>();
 
 // 注册 Bangumi 全局限流器（Singleton，跨 Scoped 服务共享）
 builder.Services.AddSingleton<BangumiRateLimiter>();
