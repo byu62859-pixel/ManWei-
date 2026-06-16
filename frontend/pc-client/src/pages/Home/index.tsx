@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Card, Pagination, Spin, message } from 'antd';
+import { Input, Card, Pagination, Spin } from 'antd';
+import { useNotify } from '../../hooks/useNotify';
 import request from '../../services/request';
 import type { Anime } from '../../types/api';
 import styles from './Home.module.css';
@@ -8,6 +9,7 @@ import styles from './Home.module.css';
 const { Search } = Input;
 
 export function Home() {
+  const notify = useNotify();
   const navigate = useNavigate();
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,8 +28,8 @@ export function Home() {
         setAnimeList(res.data.items);
         setTotal(res.data.totalCount);
       }
-    } catch {
-      message.error('获取动漫列表失败');
+    } catch (err) {
+      notify.apiError(err, '获取列表失败');
     } finally {
       setLoading(false);
     }

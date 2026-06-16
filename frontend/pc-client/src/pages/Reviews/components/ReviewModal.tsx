@@ -1,8 +1,9 @@
-import { Modal, Button, Space, message, Spin } from 'antd';
+import { Modal, Button, Space, Spin } from 'antd';
 import { useEffect, useState } from 'react';
 import { useReviewsStore } from '../store/reviewsStore';
 import type { ReviewDto } from '../types';
 import request from '../../../services/request';
+import { useNotify } from '../../../hooks/useNotify';
 import MDEditor from '@uiw/react-md-editor';
 
 interface ReviewModalProps {
@@ -14,6 +15,7 @@ interface ReviewModalProps {
 }
 
 export function ReviewModal({ visible, review, favoriteId, onClose, onSaved }: ReviewModalProps) {
+  const notify = useNotify();
   const { saveReview } = useReviewsStore();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
@@ -36,11 +38,11 @@ export function ReviewModal({ visible, review, favoriteId, onClose, onSaved }: R
 
   const handleSave = async () => {
     if (!content.trim()) {
-      message.error('请输入观后感内容');
+      notify.warning('内容不能为空');
       return;
     }
     await saveReview(favoriteId, content);
-    message.success('保存成功');
+    notify.success('已保存');
     onSaved?.();
     onClose();
   };

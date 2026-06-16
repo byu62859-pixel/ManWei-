@@ -1,4 +1,5 @@
-import { Card, Rate, Popconfirm, message } from 'antd';
+import { Card, Rate, Popconfirm } from 'antd';
+import { useNotify } from '../../../hooks/useNotify';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { FavoriteDto } from '../types';
@@ -14,6 +15,7 @@ interface FavoriteCardProps {
 export function FavoriteCard({ favorite, onProgressClick }: FavoriteCardProps) {
   const navigate = useNavigate();
   const { deleteFavorite } = useFavoritesStore();
+  const notify = useNotify();
 
   const handleCardClick = () => {
     navigate(`/anime/${favorite.animeId}`);
@@ -31,7 +33,7 @@ export function FavoriteCard({ favorite, onProgressClick }: FavoriteCardProps) {
   const handleDeleteConfirm = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     deleteFavorite(favorite.id);
-    message.success('已删除');
+    notify.success('已删除');
   };
 
   const handleDeleteCancel = (e?: React.MouseEvent) => {

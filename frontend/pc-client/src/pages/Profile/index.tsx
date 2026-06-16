@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Button, Form, Input, Spin, Upload, message } from 'antd';
+import { Button, Form, Input, Spin, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { useAuthStore } from '../../stores/authStore';
+import { useNotify } from '../../hooks/useNotify';
 import { getMe, getMyStats, updateNickname, uploadAvatar } from '../../services/user';
 import type { UserProfile, UserStats } from '../../types/api';
 import styles from './Profile.module.css';
@@ -23,6 +24,7 @@ const formatDate = (value?: string) => {
 const roleLabel = (role?: string) => (role === 'Admin' ? '管理员' : '普通用户');
 
 export function Profile() {
+  const notify = useNotify();
   const [form] = Form.useForm<{ nickName: string }>();
   const { userInfo, updateUserInfo } = useAuthStore();
   const [profile, setProfile] = useState<UserProfile | null>(userInfo);
@@ -44,8 +46,8 @@ export function Profile() {
         setStats(userStats);
         updateUserInfo(me);
         form.setFieldsValue({ nickName: me.nickName || '' });
-      } catch {
-        message.error('获取个人资料失败');
+      } catch (err) {
+        notify.apiError(err, '获取资料失败');
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -61,7 +63,7 @@ export function Profile() {
   const handleSaveNickname = async ({ nickName }: { nickName: string }) => {
     const trimmed = nickName.trim();
     if (!trimmed) {
-      message.warning('昵称不能为空');
+      notify.warning('昵称不能为空');
       return;
     }
 
@@ -71,9 +73,9 @@ export function Profile() {
       setProfile(nextProfile);
       updateUserInfo(nextProfile);
       form.setFieldsValue({ nickName: nextProfile.nickName || '' });
-      message.success('昵称修改成功');
-    } catch {
-      message.error('昵称修改失败');
+      notify.success('已更新');
+    } catch (err) {
+      notify.apiError(err, '更新失败');
     } finally {
       setSaving(false);
     }
@@ -81,12 +83,12 @@ export function Profile() {
 
   const handleAvatarUpload = async (file: File) => {
     if (!AVATAR_TYPES.includes(file.type)) {
-      message.error('仅支持 JPG、PNG、WEBP 图片');
+      notify.warning('仅支持 JPG、PNG、WEBP 图片');
       return;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-      message.error('头像不能超过2MB');
+      notify.warning('头像不能超过2MB');
       return;
     }
 
@@ -95,9 +97,9 @@ export function Profile() {
       const nextProfile = await uploadAvatar(file);
       setProfile(nextProfile);
       updateUserInfo(nextProfile);
-      message.success('头像上传成功');
-    } catch {
-      message.error('头像上传失败');
+      notify.success('已上传');
+    } catch (err) {
+      notify.apiError(err, '上传失败');
     } finally {
       setUploading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Breadcrumb, Spin, message, Button, Select, InputNumber, Rate, Tabs, Space, Modal, Form, Input, Popconfirm, Tag } from 'antd';
+import { Breadcrumb, Spin, Button, Select, InputNumber, Rate, Tabs, Space, Modal, Form, Input, Popconfirm, Tag } from 'antd';
+import { useNotify } from '../../hooks/useNotify';
 import ReactECharts from 'echarts-for-react';
 import { ReviewModal } from '../Reviews/components/ReviewModal';
 import ReactMarkdown from 'react-markdown';
@@ -54,6 +55,7 @@ export function AnimeDetail() {
   const [emotionForm] = Form.useForm();
   const [emotionTags, setEmotionTags] = useState<EmotionTagDto[]>([]);
   const [newTagName, setNewTagName] = useState('');
+  const notify = useNotify();
 
   const loadAnimeDetail = async () => {
     if (!id) return;
@@ -63,10 +65,10 @@ export function AnimeDetail() {
       if (res.code === 200) {
         setAnime(res.data);
       } else {
-        message.error('获取动漫详情失败');
+        notify.error('获取详情失败');
       }
-    } catch {
-      message.error('获取动漫详情失败');
+    } catch (err) {
+      notify.apiError(err, '获取详情失败');
     } finally {
       setLoading(false);
     }
@@ -135,18 +137,18 @@ export function AnimeDetail() {
   const handleAddTag = async () => {
     if (!id || !favoriteCheck?.isFavorited) return;
     if (!newTagName.trim()) {
-      message.warning('请输入标签名');
+      notify.warning('请输入标签名');
       return;
     }
     try {
       const res = await request.post('/emotiontags', { name: newTagName.trim(), animeId: Number(id) }) as any;
       if (res.code === 200) {
-        message.success('添加成功');
+        notify.success('已添加');
         setNewTagName('');
         loadEmotionTags();
       }
-    } catch {
-      message.error('添加失败');
+    } catch (err) {
+      notify.apiError(err, '添加失败');
     }
   };
 
@@ -154,11 +156,11 @@ export function AnimeDetail() {
     try {
       const res = await request.delete(`/emotiontags/${tagId}`) as any;
       if (res.code === 200) {
-        message.success('已删除');
+        notify.success('已删除');
         loadEmotionTags();
       }
-    } catch {
-      message.error('删除失败');
+    } catch (err) {
+      notify.apiError(err, '删除失败');
     }
   };
 
@@ -184,7 +186,7 @@ export function AnimeDetail() {
         setFavoriteCheck({ isFavorited: false });
         setEmotionCurves([]);
         setReview(null);
-        message.success('已取消追番');
+        notify.success('已取消追番');
       } else {
         const res = await request.post('/favorites', { animeId: anime.id }) as any;
         if (res.code === 200) {
@@ -195,11 +197,11 @@ export function AnimeDetail() {
             rating: res.data.rating,
             progress: res.data.progress,
           });
-          message.success('已添加追番');
+          notify.success('已收藏');
         }
       }
-    } catch {
-      message.error('操作失败');
+    } catch (err) {
+      notify.apiError(err, '操作失败');
     } finally {
       setFavoriteLoading(false);
     }
@@ -215,10 +217,10 @@ export function AnimeDetail() {
           ...updates,
           rating: updates.rating === null ? undefined : updates.rating,
         } : null);
-        message.success('更新成功');
+        notify.success('已更新');
       }
-    } catch {
-      message.error('更新失败');
+    } catch (err) {
+      notify.apiError(err, '更新失败');
     }
   };
 
@@ -231,13 +233,13 @@ export function AnimeDetail() {
         emotionLevel: values.emotionLevel,
       }) as any;
       if (res.code === 200) {
-        message.success('情感记录已保存');
+        notify.success('已保存');
         setEmotionModalVisible(false);
         emotionForm.resetFields();
         loadEmotionCurves();
       }
-    } catch {
-      message.error('保存失败');
+    } catch (err) {
+      notify.apiError(err, '保存失败');
     }
   };
 
@@ -246,11 +248,11 @@ export function AnimeDetail() {
     try {
       const res = await request.delete(`/reviews/${favoriteCheck.favoriteId}`) as any;
       if (res.code === 200) {
-        message.success('已删除观后感');
+        notify.success('已删除');
         setReview(null);
       }
-    } catch {
-      message.error('删除失败');
+    } catch (err) {
+      notify.apiError(err, '删除失败');
     }
   };
 

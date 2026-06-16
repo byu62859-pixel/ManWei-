@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Card, Button, Modal, message } from 'antd';
+import { Card, Button, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { ReviewDto } from '../types';
 import { useReviewsStore } from '../store/reviewsStore';
+import { useNotify } from '../../../hooks/useNotify';
 import styles from './ReviewCard.module.css';
 
 interface ReviewCardProps {
@@ -11,6 +12,7 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({ review, onEdit }: ReviewCardProps) {
+  const notify = useNotify();
   const navigate = useNavigate();
   const { deleteReview } = useReviewsStore();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -88,7 +90,7 @@ export function ReviewCard({ review, onEdit }: ReviewCardProps) {
           e.stopPropagation();
           handleDelete();
           setDeleteModalVisible(false);
-          message.success('已删除');
+          notify.success('已删除');
         }}
         okText="确定"
         cancelText="取消"

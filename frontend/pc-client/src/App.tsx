@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { App as AntdApp } from 'antd';
 import { useAuthStore } from './stores/authStore';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -17,8 +18,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AntdApp notification={{ maxCount: 3 }}>
+      <BrowserRouter>
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
@@ -41,8 +43,9 @@ function App() {
             <Navigate to="/" />
           }
         />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AntdApp>
   );
 }
 

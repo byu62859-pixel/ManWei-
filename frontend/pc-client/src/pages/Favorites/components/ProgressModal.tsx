@@ -1,4 +1,5 @@
-import { Modal, InputNumber, Slider, Button, Space, message } from 'antd';
+import { Modal, InputNumber, Slider, Button, Space } from 'antd';
+import { useNotify } from '../../../hooks/useNotify';
 import { useState } from 'react';
 import { useFavoritesStore } from '../store/favoritesStore';
 
@@ -13,18 +14,19 @@ interface ProgressModalProps {
 export function ProgressModal({ visible, favoriteId, currentProgress, maxProgress = 500, onClose }: ProgressModalProps) {
   const [progress, setProgress] = useState(currentProgress);
   const { updateProgress } = useFavoritesStore();
+  const notify = useNotify();
 
   const handleSave = async () => {
     if (progress < 0) {
-      message.error('进度不能为负数');
+      notify.warning('进度不能为负数');
       return;
     }
     try {
       await updateProgress(favoriteId, progress);
-      message.success('更新成功');
+      notify.success('已更新');
       onClose();
-    } catch {
-      message.error('更新失败');
+    } catch (err) {
+      notify.apiError(err, '更新失败');
     }
   };
 

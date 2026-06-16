@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Modal, Input, Button, Space, Spin, message } from 'antd';
+import { Modal, Input, Button, Space, Spin } from 'antd';
+import { useNotify } from '../../../hooks/useNotify';
 import { debounce } from 'lodash';
 import { useFavoritesStore } from '../store/favoritesStore';
 
@@ -21,6 +22,7 @@ export function AddFavoriteModal({ visible, onClose }: AddFavoriteModalProps) {
 
   const [keyword, setKeyword] = useState('');
   const [adding, setAdding] = useState(false);
+  const notify = useNotify();
 
   const searchAnimeRef = useRef(searchAnime);
   useEffect(() => {
@@ -51,14 +53,14 @@ export function AddFavoriteModal({ visible, onClose }: AddFavoriteModalProps) {
     const result = await addFavorite(params);
     setAdding(false);
     if (result.code === 200) {
-      message.success('收藏成功');
+      notify.success('已收藏');
       handleClose();
     } else if (result.code === 409) {
-      message.warning('已收藏过该动漫');
+      notify.warning('已收藏过');
     } else if (result.code === 503) {
-      message.error('Bangumi 服务繁忙，请稍后重试');
+      notify.error('服务繁忙，请稍后重试');
     } else {
-      message.error('添加失败，请重试');
+      notify.error('添加失败');
     }
   };
 
