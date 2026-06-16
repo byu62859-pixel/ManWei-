@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Drawer, Input, Button, Empty } from 'antd';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
-import AiAssistantIcon from '../../assets/ai-assistant.svg?react';
+import { AiAssistantIcon } from '../AiAssistantIcon';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { streamChat } from '../../services/chat';
 import type { ChatMessage } from '../../types/api';

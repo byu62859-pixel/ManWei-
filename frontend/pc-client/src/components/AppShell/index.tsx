@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Button, Modal } from 'antd';
-import AiAssistantIcon from '../../assets/ai-assistant.svg?react';
+import { AiAssistantIcon } from '../AiAssistantIcon';
 import { useAuthStore } from '../../stores/authStore';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { AiAssistantDrawer } from '../AiAssistantDrawer';
