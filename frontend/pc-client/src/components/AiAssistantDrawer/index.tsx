@@ -110,7 +110,7 @@ export function AiAssistantDrawer() {
 
         {error && (
           <div className={styles.errorBanner}>
-            ⚠️ {error}
+            {error}
           </div>
         )}
 
@@ -147,13 +147,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
   return (
     <div className={`${styles.bubble} ${isUser ? styles.user : styles.assistant}`}>
-      {!isUser && <div className={styles.role}>AI</div>}
       <div className={styles.bubbleContent}>
         {message.content}
-        {message.isStreaming && <span className={styles.cursor}>▍</span>}
+        {message.isStreaming && <span className={styles.cursor}>&#x25CD;</span>}
         {message.toolCalls?.map(tc => (
           <details key={tc.id} className={styles.toolCall}>
-            <summary>🔧 调用了 {tc.name}</summary>
+            <summary>调用了 {tc.name}</summary>
             <pre>{(() => {
               try { return JSON.stringify(JSON.parse(tc.resultJson || '{}'), null, 2); }
               catch { return tc.resultJson || '{}'; }
@@ -161,7 +160,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           </details>
         ))}
         {message.isError && (
-          <div className={styles.messageError}>⚠️ 连接中断, 以上内容可能不完整</div>
+          <div className={styles.messageError}>连接中断，以上内容可能不完整</div>
         )}
       </div>
     </div>

@@ -51,32 +51,28 @@
 }
 
 .bubble {
-  margin-bottom: 12px;
-  max-width: 85%;
+  margin-bottom: 16px;
   word-wrap: break-word;
+  line-height: 1.65;
+  font-size: 14px;
 }
 
+/* User: subtle white card — contained, right-aligned */
 .bubble.user {
   margin-left: auto;
-  background: var(--color-accent);
-  color: var(--color-surface);
-  padding: 10px 14px;
-  border-radius: 12px 12px 4px 12px;
-}
-
-.bubble.assistant {
-  background: var(--color-surface);
+  max-width: 70%;
+  background: #FFFFFF;
   color: var(--color-text);
-  padding: 10px 14px;
-  border-radius: 12px 12px 12px 4px;
-  border: 1px solid var(--color-border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #EAEAEA;
 }
 
-.role {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  margin-bottom: 4px;
-  font-weight: 600;
+/* Assistant: transparent — flows like body text, no decoration */
+.bubble.assistant {
+  max-width: 85%;
+  color: var(--color-text);
+  padding: 0;
 }
 
 .bubbleContent {
