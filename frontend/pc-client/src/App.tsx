@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { App as AntdApp } from 'antd';
 import { useAuthStore } from './stores/authStore';
+import { ToastProvider } from './components/Toast';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Home } from './pages/Home';
@@ -18,7 +18,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <AntdApp notification={{ maxCount: 3 }}>
+    <ToastProvider>
       <BrowserRouter>
         <Routes>
         <Route path="/login" element={<Login />} />
@@ -45,7 +45,7 @@ function App() {
         />
         </Routes>
       </BrowserRouter>
-    </AntdApp>
+    </ToastProvider>
   );
 }
 

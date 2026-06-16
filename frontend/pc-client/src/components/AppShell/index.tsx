@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Button, Modal } from 'antd';
+import { Button } from 'antd';
 import { AiAssistantIcon } from '../AiAssistantIcon';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { useAuthStore } from '../../stores/authStore';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { AiAssistantDrawer } from '../AiAssistantDrawer';
@@ -26,19 +27,12 @@ export function AppShell() {
     }
   }, [fetchMe, logout, navigate, userInfo]);
 
+  const [showLogout, setShowLogout] = useState(false);
+
   const handleLogout = () => {
-    Modal.confirm({
-      title: '确认退出登录？',
-      content: '退出后需要重新登录才能继续管理追番记录。',
-      okText: '退出',
-      cancelText: '取消',
-      okButtonProps: { danger: true },
-      onOk: () => {
-        useAiAssistantStore.getState().reset();
-        logout();
-        navigate('/login');
-      },
-    });
+    useAiAssistantStore.getState().reset();
+    logout();
+    navigate('/login');
   };
 
   const navClassName = ({ isActive }: { isActive: boolean }) =>
@@ -77,13 +71,23 @@ export function AppShell() {
             >
               AI 助手
             </Button>
-            <button className={styles.logoutBtn} type="button" onClick={handleLogout}>退出</button>
+            <button className={styles.logoutBtn} type="button" onClick={() => setShowLogout(true)}>退出</button>
           </div>
         </div>
       </header>
 
       <Outlet />
       <AiAssistantDrawer />
+      <ConfirmDialog
+        open={showLogout}
+        title="确认退出登录？"
+        description="退出后需要重新登录才能继续管理追番记录。"
+        confirmText="退出"
+        cancelText="取消"
+        danger
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogout(false)}
+      />
     </div>
   );
 }

@@ -1,77 +1,41 @@
-import { App } from 'antd';
-import type { ReactNode } from 'react';
+import { useToast } from '../components/Toast';
 
-/* ---------- minimalist-ui dark toast — warm monochrome, frosted, ultra-diffuse ---------- */
+/* ---- dot colors ---- */
 
-const baseStyle: React.CSSProperties = {
-  background: 'rgba(28, 28, 30, 0.88)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-  borderRadius: 6,
-  boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
-  border: '1px solid rgba(255,255,255,0.06)',
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-  fontSize: 13,
-  fontWeight: 400,
-  lineHeight: 1.5,
-  padding: '10px 14px',
-};
+const DOT_SUCCESS = '#D4A574';
+const DOT_ERROR = '#ef4444';
+const DOT_WARNING = '#D4A574';
 
-const msgStyle: React.CSSProperties = { color: '#fff' };
+/* ---- message wrapper ---- */
 
-/* ---------- colored dot icons ---------- */
-
-const Dot = ({ color }: { color: string }) => (
-  <span
-    style={{
-      display: 'inline-block',
-      width: 8,
-      height: 8,
-      borderRadius: '50%',
-      background: color,
-      flexShrink: 0,
-    }}
-  />
-);
-
-const iconSuccess: ReactNode = <Dot color="#D4A574" />;
-const iconError: ReactNode = <Dot color="#ef4444" />;
-const iconWarning: ReactNode = <Dot color="#D4A574" />;
-
-/* ---------- hook ---------- */
-
+const msgStyle = { color: '#fff' };
 function WhiteMsg(msg: string) {
   return <span style={msgStyle}>{msg}</span>;
 }
 
-export function useNotify() {
-  const { notification } = App.useApp();
+/* ---- hook ---- */
 
-  const opt = {
-    placement: 'bottomRight' as const,
-    className: 'dark-toast',
-    style: baseStyle,
-    closeIcon: null as ReactNode,
-  };
+export function useNotify() {
+  const toast = useToast();
 
   return {
     success(msg: string) {
-      notification.success({ ...opt, message: WhiteMsg(msg), duration: 1.5, icon: iconSuccess });
+      toast.push(WhiteMsg(msg), DOT_SUCCESS, 1500);
     },
     error(msg: string) {
-      notification.error({ ...opt, message: WhiteMsg(msg), duration: 3, icon: iconError });
+      toast.push(WhiteMsg(msg), DOT_ERROR, 3000);
     },
     warning(msg: string) {
-      notification.warning({ ...opt, message: WhiteMsg(msg), duration: 3, icon: iconWarning });
+      toast.push(WhiteMsg(msg), DOT_WARNING, 3000);
     },
     apiError(err: unknown, fallback = '操作失败') {
       const msg = getErrorMessage(err, fallback);
-      notification.error({ ...opt, message: WhiteMsg(msg), duration: 3, icon: iconError });
+      toast.push(WhiteMsg(msg), DOT_ERROR, 3000);
     },
   };
 }
 
-/* ---------- helpers ---------- */
+/* ---- helpers ---- */
 
 function getErrorMessage(err: unknown, fallback: string): string {
   if (err && typeof err === 'object' && 'response' in err) {
