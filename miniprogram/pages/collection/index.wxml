@@ -1,0 +1,126 @@
+<view class="page">
+
+  <!-- 顶部 Tab 栏 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{ tabList }}"
+      wx:key="index"
+      class="tab-item {{ currentTab === index ? 'active' : '' }}"
+      bindtap="onTabChange"
+      data-index="{{ index }}"
+    >{{ item }}</view>
+  </view>
+
+  <!-- 横向标签筛选栏 -->
+  <scroll-view
+    scroll-x
+    scroll-with-animation
+    scroll-into-view="{{ 'tag_' + activeTagIndex }}"
+    class="tag-bar"
+  >
+    <view
+      id="{{ 'tag_0' }}"
+      class="tag {{ activeTag === '' ? 'active' : '' }}"
+      bindtap="selectTag"
+      data-tag=""
+      data-index="0"
+    >全部</view>
+    <view
+      wx:for="{{ userTags }}"
+      wx:key="index"
+      id="{{ 'tag_' + (index + 1) }}"
+      class="tag {{ activeTag === item ? 'active' : '' }}"
+      bindtap="selectTag"
+      data-tag="{{ item }}"
+      data-index="{{ index + 1 }}"
+    >{{ item }}</view>
+  </scroll-view>
+
+  <!-- 排序选择器 -->
+  <view class="sort-bar">
+    <picker bindchange="onSortChange" value="{{sortIndex}}" range="{{sortOptions}}">
+      <view class="sort-picker">
+        <text class="sort-label">{{sortOptions[sortIndex]}}</text>
+        <text class="sort-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 收藏列表 -->
+  <scroll-view
+    class="favorite-list"
+    scroll-y
+    bindscrolltolower="onScrollToLower"
+    lower-threshold="100"
+    enhanced
+    bounces
+  >
+    <view class="favorite-grid" wx:if="{{ favoriteList.length > 0 }}">
+      <view
+        wx:for="{{ favoriteList }}"
+        wx:key="id"
+        wx:for-item="fav"
+        wx:for-index="favIdx"
+        class="favorite-card"
+      >
+        <view class="card-cover" bindtap="goToDetail" data-anime-id="{{ fav.animeId }}">
+          <image
+            wx:if="{{ fav.animeCover }}"
+            src="{{ fav.animeCover }}"
+            mode="aspectFill"
+            class="cover-img"
+          />
+          <view wx:else class="cover-placeholder">暂无封面</view>
+        </view>
+        <view class="card-info">
+          <text class="card-name" bindtap="goToDetail" data-anime-id="{{ fav.animeId }}">{{ fav.animeName }}</text>
+          <view class="card-meta">
+            <text class="card-status status-{{ fav.status }}">{{ fav.statusText }}</text>
+            <text class="card-progress" wx:if="{{ (fav.status === 1 || fav.status === 2) && fav.progress > 0 }}">
+              第{{ fav.progress }}集
+            </text>
+          </view>
+          <!-- 5星评分组件 -->
+          <view class="star-row" catchtap="noop">
+            <text
+              wx:for="{{5}}"
+              wx:key="*this"
+              wx:for-item="starNum"
+              class="star {{(fav.rating || 0) >= (starNum + 1) * 2 ? 'filled' : 'empty'}}"
+              catchtap="rateStarInList"
+              data-star="{{starNum + 1}}"
+              data-index="{{favIdx}}"
+            >★</text>
+            <text class="rating-text" wx:if="{{fav.rating}}">{{fav.rating}}/10</text>
+          </view>
+          <!-- 长按菜单 -->
+          <view class="card-longpress-hint" catchtap="onLongPress" data-favorite-id="{{ fav.id }}">···</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{ !loading && favoriteList.length === 0 && activeTag === '' && currentTab === 0 }}">
+      <text>你还没收藏过任何动漫</text>
+    </view>
+    <view class="empty-state" wx:if="{{ !loading && favoriteList.length === 0 && activeTag === '' && currentTab !== 0 }}">
+      <text>当前状态下暂无收藏</text>
+    </view>
+    <view class="empty-state" wx:if="{{ !loading && favoriteList.length === 0 && activeTag !== '' }}">
+      <text>该标签下暂无收藏</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{ favoriteList.length > 0 }}">
+      <text wx:if="{{ loading }}">加载中...</text>
+      <text wx:elif="{{ !hasMore }}">没有更多了</text>
+      <text wx:else class="load-more-btn" bindtap="onScrollToLower">加载更多</text>
+    </view>
+  </scroll-view>
+
+  <!-- 加载遮罩 -->
+  <view class="loading-mask" wx:if="{{ loading && favoriteList.length === 0 }}">
+    <text>加载中...</text>
+  </view>
+
+</view>

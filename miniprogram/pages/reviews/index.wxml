@@ -1,0 +1,61 @@
+<view class="page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">我的观后感</text>
+  </view>
+
+  <!-- 观后感列表（使用 Page 原生滚动） -->
+  <view class="review-list" wx:if="{{ reviewList.length > 0 }}">
+    <view
+      class="review-card"
+      wx:for="{{ reviewList }}"
+      wx:key="reviewId"
+      bindtap="goToDetail"
+      data-anime-id="{{ item.animeId }}"
+    >
+      <!-- 左侧封面 -->
+      <view class="card-cover">
+        <image
+          wx:if="{{ item.animeCover }}"
+          src="{{ item.animeCover }}"
+          mode="aspectFill"
+          class="cover-img"
+        />
+        <view wx:else class="cover-placeholder">暂无封面</view>
+      </view>
+      <!-- 右侧内容 -->
+      <view class="card-content">
+        <text class="anime-name">{{ item.animeName }}</text>
+        <text class="content-summary">{{ item.contentSummary }}</text>
+        <!-- 使用预处理后的 displayTime，而非原始 updatedAt -->
+        <text class="update-time">{{ item.displayTime }}</text>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more">
+      <text wx:if="{{ loading }}">加载中...</text>
+      <text wx:elif="{{ !hasMore }}">— 已经到底了 —</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{ !loading && reviewList.length === 0 }}">
+    <text>还没有写过观后感</text>
+    <text class="empty-tip">看完一部动漫后，来写下你的感受吧</text>
+  </view>
+
+  <!-- 骨架屏（首屏加载中） -->
+  <view class="skeleton-mask" wx:if="{{ loading && reviewList.length === 0 }}">
+    <view class="skeleton-list">
+      <view class="skeleton-card" wx:for="{{ [1,2,3,4] }}" wx:key="index">
+        <view class="skeleton-cover"></view>
+        <view class="skeleton-info">
+          <view class="skeleton-title"></view>
+          <view class="skeleton-text"></view>
+          <view class="skeleton-time"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

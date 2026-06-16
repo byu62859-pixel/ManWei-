@@ -1,0 +1,49 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/anime-detail/index",
+    "pages/collection/index",
+    "pages/reviews/index",
+    "pages/personal/index",
+    "pages/login/login",
+    "pages/ai-chat/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "漫味",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#A8AEC0",
+    "selectedColor": "#FF6B6B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tabbar/首页未选中.png",
+        "selectedIconPath": "images/tabbar/首页选中.png"
+      },
+      {
+        "pagePath": "pages/collection/index",
+        "text": "收藏",
+        "iconPath": "images/tabbar/收藏未选中.png",
+        "selectedIconPath": "images/tabbar/收藏选中.png"
+      },
+      {
+        "pagePath": "pages/reviews/index",
+        "text": "观后感",
+        "iconPath": "images/tabbar/评论未选中.png",
+        "selectedIconPath": "images/tabbar/评论选中.png"
+      },
+      {
+        "pagePath": "pages/personal/index",
+        "text": "我的",
+        "iconPath": "images/tabbar/我的未选中.png",
+        "selectedIconPath": "images/tabbar/我的选中.png"
+      }
+    ]
+  }
+}

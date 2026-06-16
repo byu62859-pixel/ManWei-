@@ -1,0 +1,63 @@
+# .NET / ASP.NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.cachefile
+*.dll
+*.pdb
+*.exe
+*.log
+.vs/
+.vscode/
+appsettings.Development.json
+
+# Node / Vite
+node_modules/
+dist/
+.npm
+.eslintcache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Misc
+generated/
+*.tar
+*.tar.gz
+__pycache__/
+Shenzhen/
+shenzhen_embedded.html
+shenzhen_through_the_eyes_of_modern_youth*.html
+shenzhen_redesign_spec_for_minimax.md
+anime-page.png
+close-up.png
+
+# Local databases (real user data, NEVER commit)
+*.db
+*.sqlite
+*.sqlite3
+ManWeiDB
+ManWeiDB-*
+
+# Local config / env
+.env
+.env.local
+.env.*.local
+
+# Claude / Agent artifacts (transient, not part of project)
+.playwright-mcp/
+.superpowers/
+.claude/
+.agents/
+skills-lock.json

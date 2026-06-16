@@ -1,0 +1,40 @@
+<view class="container">
+  <!-- 区域 1：Logo 区 -->
+  <view class="logo-area">
+    <view class="logo-circle">
+      <text class="logo-char">漫</text>
+    </view>
+    <text class="app-title">漫味</text>
+    <text class="app-subtitle">记录每一帧情绪</text>
+  </view>
+
+  <!-- 区域 2：表单卡片 -->
+  <view class="form-card">
+    <view class="input-group">
+      <view class="input-row">
+        <image class="input-icon" src="/images/tabbar/用户登录.png" mode="aspectFit" />
+        <input class="input-field" type="text" placeholder="请输入账号" bindinput="onAccountInput" value="{{account}}" />
+      </view>
+      <view class="input-row">
+        <image class="input-icon" src="/images/tabbar/密码.png" mode="aspectFit" />
+        <input class="input-field" password="{{!showPassword}}" placeholder="请输入密码" bindinput="onPasswordInput" value="{{password}}" />
+        <text class="toggle-password" bindtap="togglePassword">{{showPassword ? '👁' : '🙈'}}</text>
+      </view>
+    </view>
+
+    <button class="btn-login" bindtap="handleAccountLogin">登录</button>
+    <button class="btn-register" bindtap="handleRegister">注册账号</button>
+  </view>
+
+  <!-- 区域 3：底部区域 -->
+  <view class="bottom-area">
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">其他登录方式</text>
+      <view class="divider-line"></view>
+    </view>
+    <view class="wechat-btn" bindtap="handleLogin">
+      <image class="wechat-icon-img" src="/images/tabbar/微信图标-圆形.png" mode="aspectFit" />
+    </view>
+  </view>
+</view>

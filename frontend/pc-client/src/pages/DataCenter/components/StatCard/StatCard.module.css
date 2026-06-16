@@ -1,0 +1,26 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.value {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-family: 'Noto Serif SC', serif;
+}
+
+.subLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}

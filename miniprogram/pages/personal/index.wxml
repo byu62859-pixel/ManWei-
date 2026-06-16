@@ -1,0 +1,154 @@
+<view class="page">
+
+  <!-- 游客未登录状态 -->
+  <view wx:if="{{ !isLoggedIn }}" class="guest-panel">
+    <view class="guest-avatar">
+      <text class="guest-avatar-text">?</text>
+    </view>
+    <text class="guest-title">登录后查看你的专属数据</text>
+    <text class="guest-desc">登录即表示同意《漫味用户协议》</text>
+    <button class="guest-login-btn" bindtap="goLogin" type="primary" plain="false">
+      登录 / 注册
+    </button>
+  </view>
+
+  <!-- 已登录状态 -->
+  <view wx:if="{{ isLoggedIn }}">
+
+    <!-- 用户信息区 -->
+    <view class="user-header">
+      <view class="user-avatar">
+        <text class="avatar-text">{{ avatarText }}</text>
+      </view>
+      <!-- 昵称编辑态 -->
+      <view wx:if="{{ editingNickname }}" class="nickname-edit">
+        <input
+          class="nickname-input"
+          value="{{ nicknameInput }}"
+          placeholder="输入昵称"
+          maxlength="50"
+          bindinput="onNicknameInput"
+          focus="{{ editingNickname }}"
+        />
+        <view class="nickname-edit-actions">
+          <text class="nickname-confirm" bindtap="onConfirmNickname">保存</text>
+          <text class="nickname-cancel" bindtap="onCancelEditNickname">取消</text>
+        </view>
+      </view>
+      <!-- 普通态 -->
+      <view wx:else class="nickname-row" bindtap="onEditNickname">
+        <text class="user-nickname">{{ nickname }}</text>
+        <text class="edit-icon">✎</text>
+      </view>
+      <view class="logout-btn" bindtap="onLogout">退出登录</view>
+    </view>
+
+    <!-- AI 助手入口 -->
+    <view class="ai-assistant-entry" bindtap="goToAiChat">
+      <view class="ai-assistant-icon">
+        <text>AI</text>
+      </view>
+      <view class="ai-assistant-info">
+        <text class="ai-assistant-title">漫味小助手</text>
+        <text class="ai-assistant-desc">推荐番剧、辅助写观后感、查询追番数据</text>
+      </view>
+      <text class="ai-assistant-arrow">›</text>
+    </view>
+
+    <!-- 统计卡片 -->
+    <view class="stats-card">
+      <view class="stats-item" bindtap="goToCollection" data-tab="0">
+        <text class="stats-num">{{ wantCount }}</text>
+        <text class="stats-label">想看</text>
+      </view>
+      <view class="stats-divider"></view>
+      <view class="stats-item" bindtap="goToCollection" data-tab="1">
+        <text class="stats-num">{{ watchingCount }}</text>
+        <text class="stats-label">在看</text>
+      </view>
+      <view class="stats-divider"></view>
+      <view class="stats-item" bindtap="goToCollection" data-tab="2">
+        <text class="stats-num">{{ doneCount }}</text>
+        <text class="stats-label">看过</text>
+      </view>
+    </view>
+
+    <!-- 情感词云区域 -->
+    <view class="wordcloud-section">
+      <view class="section-title">我的情感词云</view>
+      <view class="wordcloud-card" catchtap="onWordCloudAreaTap">
+        <!-- 词云气泡列表 -->
+        <view class="wordcloud-list">
+          <view
+            wx:for="{{ wordCloudData }}"
+            wx:key="name"
+            class="wordcloud-tag {{ item.count > 1 ? 'has-count' : '' }}"
+            style="{{ item.style }}"
+            bindtap="onWordCloudTap"
+            data-idx="{{ index }}"
+          >{{ item.name }}</view>
+        </view>
+        <!-- 气泡提示框 -->
+        <view
+          wx:if="{{ tooltip }}"
+          class="wordcloud-tooltip"
+          style="top: {{ tooltip.top }}px; left: {{ tooltip.left }}px;"
+        >{{ tooltip.text }}</view>
+        <!-- 空状态 / 加载态 -->
+        <view class="wordcloud-empty" wx:if="{{ !loading && wordCloudData.length === 0 }}">
+          <text>暂无情感标签记录</text>
+        </view>
+        <view class="loading-text" wx:if="{{ loading }}">
+          <text>加载中...</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 追番数据小结 -->
+    <view class="stats-summary-section">
+      <view class="section-title">追番数据小结</view>
+      <view class="stats-summary-card">
+        <view class="stats-summary-item">
+          <text class="stats-summary-num">{{ userStats.totalEpisodes }}</text>
+          <text class="stats-summary-label">记录集数</text>
+        </view>
+        <view class="stats-summary-divider"></view>
+        <view class="stats-summary-item">
+          <text class="stats-summary-num">{{ userStats.avgRating }}</text>
+          <text class="stats-summary-label">平均评分</text>
+        </view>
+        <view class="stats-summary-divider"></view>
+        <view class="stats-summary-item">
+          <text class="stats-summary-num">{{ userStats.reviewCount }}</text>
+          <text class="stats-summary-label">观后感数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近观后感 -->
+    <view class="recent-reviews-section">
+      <view class="section-title">最近观后感</view>
+      <view class="recent-reviews-card">
+        <block wx:if="{{ recentReviews.length > 0 }}">
+          <view
+            wx:for="{{ recentReviews }}"
+            wx:key="favoriteId"
+            class="recent-review-item"
+            bindtap="goToReviews"
+          >
+            <view class="recent-review-content">
+              <text class="recent-review-anime">{{ item.animeName }}</text>
+              <text class="recent-review-summary">{{ item.contentSummary }}</text>
+            </view>
+            <text class="recent-review-arrow">›</text>
+          </view>
+        </block>
+        <view wx:else class="recent-reviews-empty">
+          <text>还没有观后感，去写第一篇吧</text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+</view>

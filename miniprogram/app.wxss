@@ -1,0 +1,210 @@
+/* ============================
+   漫味 (ManWei) Mini Program
+   Neo-Kawaii Japanese · Warm & Inviting
+   ============================ */
+
+page {
+  /* === Brand Core === */
+  --mw-ink:           #2D3561;
+  --mw-ink-soft:      #4A528A;
+  --mw-surface:       #FFFFFF;
+  --mw-cream:         #FBF9F7;
+  --mw-cream-deep:    #F3EEE8;
+
+  /* === Accents === */
+  --mw-coral:         #FF6B6B;
+  --mw-coral-soft:    #FFE8E8;
+  --mw-peach:         #FFAB91;
+  --mw-peach-soft:    #FFEFE8;
+  --mw-mint:          #6BCB77;
+  --mw-mint-soft:     #E8F8EC;
+  --mw-gold:          #FFD93D;
+  --mw-gold-soft:     #FFF5C0;
+  --mw-lavender:      #A07EF6;
+  --mw-lavender-soft: #EDE8FF;
+  --mw-sky:           #74C0FC;
+  --mw-sky-soft:      #E8F4FF;
+
+  /* === Text === */
+  --mw-text:         #2D3561;
+  --mw-text-soft:    #6B7494;
+  --mw-text-muted:   #A8AEC0;
+
+  /* === Borders === */
+  --mw-border:       #EDE9E3;
+
+  /* === Semantic === */
+  --mw-success:      #6BCB77;
+  --mw-warning:      #FFD93D;
+  --mw-danger:       #FF6B6B;
+
+  /* === Emotion Tag Colors === */
+  --mw-emotion-tears:      #74C0FC;
+  --mw-emotion-pumped:     #FF8A65;
+  --mw-emotion-healing:    #6BCB77;
+  --mw-emotion-depressing: #A07EF6;
+  --mw-emotion-laughing:   #FFD93D;
+  --mw-emotion-masterpiece: #FF6B6B;
+
+  /* === Motion === */
+  --mw-dur-fast:    150ms;
+  --mw-dur-normal:  250ms;
+  --mw-dur-slow:    420ms;
+  --mw-ease:        cubic-bezier(0.4, 0, 0.2, 1);
+  --mw-ease-bounce: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --mw-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  background: var(--mw-cream);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  color: var(--mw-text);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+/* ============================
+   Keyframe Animations
+   ============================ */
+
+@keyframes mw-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes mw-fadeSlideUp {
+  from { opacity: 0; transform: translateY(12rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mw-scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes mw-starPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  65%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
+@keyframes mw-dotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes mw-shimmer-skeleton {
+  0%   { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* ============================
+   Skeleton Loading
+   ============================ */
+
+.mw-skeleton {
+  background: linear-gradient(90deg, #f0ede8 25%, #e8e3dc 50%, #f0ede8 75%);
+  background-size: 400px 100%;
+  animation: mw-shimmer-skeleton 1.6s ease-in-out infinite;
+  border-radius: 8rpx;
+}
+
+/* ============================
+   Button Base
+   ============================ */
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--mw-coral) 0%, var(--mw-peach) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 44rpx;
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 107, 0.32);
+  transition: transform var(--mw-dur-fast) var(--mw-ease-bounce),
+              box-shadow var(--mw-dur-fast) var(--mw-ease);
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+  box-shadow: 0 2rpx 10rpx rgba(255, 107, 107, 0.22);
+}
+
+/* ============================
+   Card Base
+   ============================ */
+
+.mw-card {
+  background: var(--mw-surface);
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 16rpx rgba(45, 53, 97, 0.07);
+  transition: transform var(--mw-dur-fast) var(--mw-ease-bounce),
+              box-shadow var(--mw-dur-fast) var(--mw-ease);
+}
+
+.mw-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 1rpx 8rpx rgba(45, 53, 97, 0.04);
+}
+
+/* ============================
+   Empty State
+   ============================ */
+
+.mw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 480rpx;
+  color: var(--mw-text-muted);
+}
+
+.mw-empty__icon {
+  font-size: 96rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.35;
+}
+
+.mw-empty__text {
+  font-size: 28rpx;
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* ============================
+   Emotion Tag Chips
+   ============================ */
+
+.emotion-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 32rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  transition: transform var(--mw-dur-fast) var(--mw-ease-bounce),
+              box-shadow var(--mw-dur-fast) var(--mw-ease);
+}
+
+.emotion-tag:active { transform: scale(0.95); }
+
+.emotion-tag.tears      { background: rgba(116, 192, 252, 0.12); color: #4A9FD8; }
+.emotion-tag.pumped     { background: rgba(255, 138, 101, 0.12); color: #D06030; }
+.emotion-tag.healing    { background: rgba(107, 203, 119, 0.12); color: #3a9e5a; }
+.emotion-tag.depressing { background: rgba(160, 126, 246, 0.12); color: #7050d0; }
+.emotion-tag.laughing   { background: rgba(255, 217, 61, 0.15); color: #b08800; }
+.emotion-tag.masterpiece { background: rgba(255, 107, 107, 0.12); color: #d94040; }
+
+.emotion-tag.active { transform: scale(1.05); box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.12); }
+.emotion-tag.tears.active      { background: #74C0FC; color: #fff; }
+.emotion-tag.pumped.active     { background: #FF8A65; color: #fff; }
+.emotion-tag.healing.active    { background: #6BCB77; color: #fff; }
+.emotion-tag.depressing.active { background: #A07EF6; color: #fff; }
+.emotion-tag.laughing.active   { background: #FFD93D; color: #2D3561; }
+.emotion-tag.masterpiece.active { background: #FF6B6B; color: #fff; }
+
+/* ============================
+   Tab Bar Styling (override wechat)
+   ============================ */
+
+page { --tb-bg: #ffffff; }

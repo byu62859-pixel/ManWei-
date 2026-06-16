@@ -1,0 +1,202 @@
+<view class="page">
+
+  <!-- 顶部动漫信息区 -->
+  <view class="anime-header">
+    <image
+      class="anime-cover"
+      src="{{ anime.cover }}"
+      mode="aspectFill"
+      wx:if="{{ anime.cover }}"
+    />
+    <view class="cover-placeholder" wx:else>暂无封面</view>
+    <view class="anime-info">
+      <text class="anime-name">{{ anime.name }}</text>
+      <text class="anime-type">{{ anime.animeType }}</text>
+      <view class="anime-summary" wx:if="{{ anime.summary }}" bindtap="onToggleSummary">
+        <text class="summary-text {{ summaryExpanded ? 'expanded' : '' }}">{{ anime.summary }}</text>
+        <text class="summary-toggle">{{ summaryExpanded ? '收起' : '展开' }}</text>
+      </view>
+      <view class="anime-actions">
+        <!-- 未收藏时显示 -->
+        <view
+          wx:if="{{ !favoriteInfo.isFavorited }}"
+          class="btn-favorite"
+          bindtap="onAddFavorite"
+        >
+          <text>+ 添加收藏</text>
+        </view>
+        <!-- 已收藏时显示 -->
+        <view wx:else class="favorite-status">
+          <text class="status-text">{{ favoriteInfo.statusText }}</text>
+          <view class="status-ops" wx:if="{{ !isEditingStatus }}">
+            <text class="op-btn" bindtap="onEditStatus">修改状态</text>
+          </view>
+          <!-- 状态选择器 -->
+          <view wx:else class="status-picker">
+            <view
+              wx:for="{{ statusList }}"
+              wx:key="value"
+              class="status-item {{ favoriteInfo.status === item.value ? 'active' : '' }}"
+              bindtap="onSelectStatus"
+              data-status="{{ item.value }}"
+            >{{ item.label }}</view>
+            <text class="op-btn cancel" bindtap="onCancelEditStatus">取消</text>
+          </view>
+          <!-- 5星评分组件 -->
+          <view class="star-row">
+            <text
+              wx:for="{{5}}"
+              wx:key="*this"
+              class="star {{(favoriteInfo.rating || 0) >= (item + 1) * 2 ? 'filled' : 'empty'}}"
+              bindtap="rateStar"
+              data-star="{{item + 1}}"
+            >★</text>
+            <text class="rating-text" wx:if="{{favoriteInfo.rating}}">
+              {{favoriteInfo.rating}}/10</text>
+            <text class="rating-text dim" wx:else>点击评分</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Tab 切换栏 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{ tabs }}"
+      wx:key="key"
+      class="tab-item {{ currentTab === item.key ? 'active' : '' }}"
+      bindtap="onSwitchTab"
+      data-tab="{{ item.key }}"
+    >{{ item.label }}</view>
+  </view>
+
+  <!-- Tab 内容区 -->
+  <view class="tab-content">
+
+    <!-- ========== Tab 1: 情感标签 ========== -->
+    <view wx:if="{{ currentTab === 'tags' }}" class="tags-tab">
+      <!-- 标签展示区 -->
+      <view class="tag-list" wx:if="{{ tagList.length > 0 }}">
+        <view
+          wx:for="{{ tagList }}"
+          wx:key="id"
+          class="tag-item {{ item.isPreset ? 'preset' : 'custom' }}"
+        >
+          <text>{{ item.name }}</text>
+          <text
+            wx:if="{{ !item.isPreset }}"
+            class="tag-del"
+            catchtap="onDeleteTag"
+            data-id="{{ item.id }}"
+          >×</text>
+        </view>
+      </view>
+      <view class="empty-tags" wx:if="{{ tagList.length === 0 && !loadingTags }}">
+        <text>暂无情感标签</text>
+      </view>
+
+      <!-- 新增标签 -->
+      <view class="add-tag-area" wx:if="{{ favoriteInfo.isFavorited }}">
+        <input
+          class="tag-input"
+          value="{{ newTagName }}"
+          placeholder="输入自定义标签"
+          bindinput="onTagInput"
+        />
+        <view class="btn-add-tag" bindtap="onAddTag">添加</view>
+      </view>
+      <view class="tips" wx:if="{{ !favoriteInfo.isFavorited }}">
+        <text>添加收藏后可创建自定义情感标签</text>
+      </view>
+    </view>
+
+    <!-- ========== Tab 2: 情绪曲线 ========== -->
+    <view wx:if="{{ currentTab === 'curve' }}" class="curve-tab">
+      <!-- 未收藏时显示占位 -->
+      <view class="need-favorite" wx:if="{{ !favoriteInfo.isFavorited }}">
+        <text>添加收藏后可记录情绪曲线</text>
+      </view>
+      <!-- 已收藏时显示完整功能 -->
+      <view wx:else>
+        <!-- 情感曲线折线图 -->
+        <view class="curve-chart">
+          <!-- 点击数据点展示区 -->
+          <view class="curve-tip" wx:if="{{ selectedPoint }}">
+            第 {{selectedPoint.episode}} 集 · 情感等级 {{selectedPoint.emotionLevel}}/5
+          </view>
+          <canvas
+            type="2d"
+            id="emotionChart"
+            class="emotion-chart"
+            style="width:100%;height:300rpx;"
+            bindtap="onChartTap"
+          ></canvas>
+        </view>
+
+        <!-- 空数据提示 -->
+        <view class="curve-empty" wx:if="{{ curveData.length === 0 && !loadingCurve }}">
+          <text>暂无情感曲线数据，录入下方集数情感值开始记录</text>
+        </view>
+
+        <!-- 情感录入区 -->
+        <view class="curve-input-area">
+          <view class="input-row">
+            <text class="input-label">选择集数</text>
+            <input
+              type="number"
+              class="episode-input"
+              value="{{ inputEpisode }}"
+              bindinput="onEpisodeInput"
+            />
+          </view>
+          <view class="emotion-selector">
+            <text class="input-label">情感等级</text>
+            <view class="emotion-levels">
+              <view
+                wx:for="{{ emotionLevels }}"
+                wx:key="value"
+                class="emotion-item {{ inputEmotionLevel === item.value ? 'active' : '' }}"
+                bindtap="onSelectEmotion"
+                data-level="{{ item.value }}"
+              >
+                <text class="emotion-emoji">{{ item.emoji }}</text>
+                <text class="emotion-label">{{ item.label }}</text>
+              </view>
+            </view>
+          </view>
+          <view class="btn-save-curve" bindtap="onSaveEmotionCurve">保存情感记录</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== Tab 3: 观后感 ========== -->
+    <view wx:if="{{ currentTab === 'review' }}" class="review-tab">
+      <!-- 未收藏时显示占位 -->
+      <view class="need-favorite" wx:if="{{ !favoriteInfo.isFavorited }}">
+        <text>添加收藏后可撰写观后感</text>
+      </view>
+      <!-- 已收藏时显示编辑区 -->
+      <view wx:else>
+        <textarea
+          class="review-textarea"
+          value="{{ reviewContent }}"
+          placeholder="写下你的观后感..."
+          bindinput="onReviewInput"
+          maxlength="1000"
+        ></textarea>
+        <view class="review-footer">
+          <text class="word-count">{{ reviewContent.length }}/1000</text>
+          <view class="btn-save-review" bindtap="onSaveReview">保存</view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 加载中遮罩 -->
+  <view class="loading-mask" wx:if="{{ loading }}">
+    <text>加载中...</text>
+  </view>
+
+</view>

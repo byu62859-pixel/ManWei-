@@ -1,0 +1,76 @@
+<view class="index-page">
+  <!-- 搜索栏 -->
+  <view class="search-area">
+    <view class="search-box">
+      <input
+        class="search-input"
+        value="{{ keyword }}"
+        placeholder="搜索动漫"
+        bindinput="onInput"
+        bindconfirm="onSearch"
+      />
+      <view class="search-btn" bindtap="onSearch">搜索</view>
+    </view>
+  </view>
+
+  <!-- 类型筛选 tabs -->
+  <scroll-view class="type-tabs" scroll-x enable-flex>
+    <view
+      wx:for="{{ typeList }}"
+      wx:key="value"
+      class="type-tab {{ currentType === item.value ? 'active' : '' }}"
+      bindtap="onTypeChange"
+      data-type="{{ item.value }}"
+    >
+      {{ item.label }}
+    </view>
+  </scroll-view>
+
+  <!-- 动漫列表 -->
+  <scroll-view
+    class="anime-list"
+    scroll-y
+    bindscrolltolower="onLoadMore"
+    lower-threshold="100"
+    enhanced
+    bounces
+  >
+    <view class="anime-grid" wx:if="{{ animeList.length > 0 }}">
+      <view
+        class="anime-card"
+        wx:for="{{ animeList }}"
+        wx:key="id"
+        bindtap="goDetail"
+        data-id="{{ item.id }}"
+      >
+        <view class="card-cover">
+          <image
+            wx:if="{{ item.cover }}"
+            src="{{ item.cover }}"
+            mode="aspectFill"
+            class="cover-img"
+          />
+          <view wx:else class="cover-placeholder">暂无封面</view>
+        </view>
+        <view class="card-info">
+          <text class="card-name">{{ item.name }}</text>
+          <view class="card-meta">
+            <text class="card-type">{{ item.animeType }}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{ !loading && animeList.length === 0 }}">
+      <text>暂无动漫，去搜索添加吧～</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{ animeList.length > 0 }}">
+      <text wx:if="{{ loading }}">加载中...</text>
+      <text wx:elif="{{ !hasMore }}">没有更多了</text>
+      <text wx:else class="load-more-btn" bindtap="onLoadMore">加载更多</text>
+    </view>
+  </scroll-view>
+</view>

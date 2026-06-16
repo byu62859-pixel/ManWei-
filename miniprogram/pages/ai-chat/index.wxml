@@ -1,0 +1,27 @@
+<view class="ai-chat-page">
+  <scroll-view scroll-y class="messages" scroll-top="{{scrollTop}}">
+    <view wx:for="{{messages}}" wx:key="index" class="message-row {{item.role === 'user' ? 'user-row' : 'ai-row'}}">
+      <view class="avatar">
+        <image wx:if="{{item.role === 'user'}}" src="{{avatar}}" mode="aspectFill" />
+        <text wx:else class="ai-avatar-icon">漫</text>
+      </view>
+      <view class="bubble {{item.role === 'user' ? 'user-bubble' : 'ai-bubble'}}">
+        <text>{{item.content}}</text>
+      </view>
+    </view>
+    <view wx:if="{{loading}}" class="message-row ai-row">
+      <view class="avatar"><text class="ai-avatar-icon">漫</text></view>
+      <view class="bubble ai-bubble loading-bubble">
+        <view class="loading-dots">
+          <view class="dot"></view>
+          <view class="dot"></view>
+          <view class="dot"></view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="input-area">
+    <textarea class="input-box" value="{{inputText}}" bindinput="onInput" placeholder="问我任何关于动漫的问题..." placeholder-class="placeholder-bottom" maxlength="500" />
+    <button class="send-btn {{inputText && !loading ? 'send-btn-active' : 'send-btn-disabled'}}" bindtap="sendMessage">发送</button>
+  </view>
+</view>

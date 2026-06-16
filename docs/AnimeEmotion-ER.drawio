@@ -1,0 +1,107 @@
+<mxfile host="app.diagrams.net" modified="2026-05-19T00:00:00.000Z" agent="Claude" version="21.0.0">
+  <diagram name="AnimeEmotion E-R" id="er-diagram">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" snap="1" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- User -->
+        <mxCell id="user" value="User&#xa;────────&#xa;Id (PK)&#xa;OpenId&#xa;NickName&#xa;Avatar&#xa;PasswordHash&#xa;Role&#xa;IsEnabled&#xa;CreateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="140" height="190" as="geometry"/>
+        </mxCell>
+
+        <!-- Anime -->
+        <mxCell id="anime" value="Anime&#xa;────────&#xa;Id (PK)&#xa;BangumiId&#xa;Name&#xa;Cover&#xa;Summary&#xa;AnimeType&#xa;CreateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="180" width="140" height="180" as="geometry"/>
+        </mxCell>
+
+        <!-- Favorite -->
+        <mxCell id="favorite" value="Favorite&#xa;────────&#xa;Id (PK)&#xa;UserId (FK)&#xa;AnimeId (FK)&#xa;Status&#xa;Progress&#xa;Rating&#xa;CreateTime&#xa;UpdateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="260" y="180" width="140" height="190" as="geometry"/>
+        </mxCell>
+
+        <!-- Review -->
+        <mxCell id="review" value="Review&#xa;────────&#xa;Id (PK)&#xa;FavoriteId (FK)&#xa;Content&#xa;CreateTime&#xa;UpdateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="260" y="450" width="140" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- EmotionRecord -->
+        <mxCell id="emotionRecord" value="EmotionRecord&#xa;─────────────&#xa;Id (PK)&#xa;FavoriteId (FK)&#xa;EmotionLevel&#xa;Episode&#xa;CreateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="460" y="450" width="140" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- EmotionTag -->
+        <mxCell id="emotionTag" value="EmotionTag&#xa;────────&#xa;Id (PK)&#xa;Name&#xa;IsPreset&#xa;UserId (FK)&#xa;AnimeId (FK)&#xa;CreateTime" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="140" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- User → Favorite (1:N) -->
+        <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=2;startArrow=none;startFill=0;endSize=10;" edge="1" parent="1" source="user" target="favorite">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="200" as="sourcePoint"/>
+            <mxPoint x="260" y="200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label1" value="1:N" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#444444;" vertex="1" parent="edge1">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Anime → Favorite (1:N) -->
+        <mxCell id="edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=2;startArrow=none;startFill=0;endSize=10;" edge="1" parent="1" source="anime" target="favorite">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="200" as="sourcePoint"/>
+            <mxPoint x="400" y="200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label2" value="1:N" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#444444;" vertex="1" parent="edge2">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Favorite → Review (1:1) -->
+        <mxCell id="edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=2;startArrow=none;startFill=0;endSize=10;" edge="1" parent="1" source="favorite" target="review">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="370" as="sourcePoint"/>
+            <mxPoint x="330" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label3" value="1:1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#444444;" vertex="1" parent="edge3">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Favorite → EmotionRecord (1:N) -->
+        <mxCell id="edge4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=2;startArrow=none;startFill=0;endSize=10;" edge="1" parent="1" source="favorite" target="emotionRecord">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="370" as="sourcePoint"/>
+            <mxPoint x="470" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label4" value="1:N" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#444444;" vertex="1" parent="edge4">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- User → EmotionTag (N:1 可选) -->
+        <mxCell id="edge5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=1.5;startArrow=none;startFill=0;endSize=10;dashed=1;dashPattern=8 4;" edge="1" parent="1" source="user" target="emotionTag">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="370" as="sourcePoint"/>
+            <mxPoint x="130" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label5" value="N:1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#888888;" vertex="1" parent="edge5">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Anime → EmotionTag (N:1 可选) -->
+        <mxCell id="edge6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=0;endFill=0;strokeWidth=1.5;startArrow=none;startFill=0;endSize=10;dashed=1;dashPattern=8 4;" edge="1" parent="1" source="anime" target="emotionTag">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="530" y="360" as="sourcePoint"/>
+            <mxPoint x="200" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label6" value="N:1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#888888;" vertex="1" parent="edge6">
+          <mxGeometry x="0.5" y="-15" relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
