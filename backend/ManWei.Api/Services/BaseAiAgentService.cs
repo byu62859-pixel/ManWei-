@@ -162,4 +162,197 @@ public abstract class BaseAiAgentService
         }
         return val?.ToString();
     }
+
+    public class StreamEvent
+    {
+        public string Type { get; set; } = ""; // delta | tool_call | tool_result | done | error
+        public string? Content { get; set; }
+        public string? ToolCallId { get; set; }
+        public string? ToolName { get; set; }
+        public string? ToolArgsJson { get; set; }
+        public string? ToolResultJson { get; set; }
+        public string? Error { get; set; }
+    }
+
+    private class ToolCallAccumulator
+    {
+        public string Id = "";
+        public string? Type;
+        public string Name = "";
+        public System.Text.StringBuilder ArgumentsJson = new();
+    }
+
+    public async IAsyncEnumerable<StreamEvent> StreamChatAsync(
+        IEnumerable<object> messages,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        var client = _httpClientFactory.CreateClient("DeepSeek");
+        var apiKey = ResolveApiKey();
+        var model = _config["DeepSeek:Model"] ?? "deepseek-chat";
+
+        var tools = GetTools().ToList();
+        var messageList = messages.ToList();
+
+        // 递归深度上限保护（防 tool 调用无限循环）
+        const int maxRounds = 8;
+        for (int round = 0; round < maxRounds; round++)
+        {
+            var payload = new
+            {
+                model,
+                messages = messageList,
+                tools = tools.Count > 0 ? tools : null,
+                stream = true
+            };
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "/chat/completions")
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    System.Text.Encoding.UTF8, "application/json")
+            };
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+
+            using var response = await client.SendAsync(
+                request, HttpCompletionOption.ResponseHeadersRead, ct);
+            response.EnsureSuccessStatusCode();
+
+            await using var stream = await response.Content.ReadAsStreamAsync(ct);
+            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+
+            // 流式聚合状态
+            var contentBuilder = new System.Text.StringBuilder();
+            var toolCalls = new Dictionary<int, ToolCallAccumulator>();
+            var finishReason = (string?)null;
+
+            string? line;
+            while ((line = await reader.ReadLineAsync(ct)) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (!line.StartsWith("data:")) continue;
+                var data = line.Substring(5).Trim();
+                if (data == "[DONE]") break;
+
+                JsonElement chunk;
+                try { chunk = JsonDocument.Parse(data).RootElement.Clone(); }
+                catch { continue; }
+
+                var choice = chunk.GetProperty("choices")[0];
+                var delta = choice.GetProperty("delta");
+
+                // 1) content delta
+                if (delta.TryGetProperty("content", out var contentEl) &&
+                    contentEl.ValueKind == JsonValueKind.String)
+                {
+                    var piece = contentEl.GetString() ?? "";
+                    contentBuilder.Append(piece);
+                    yield return new StreamEvent { Type = "delta", Content = piece };
+                }
+
+                // 2) tool_calls delta - 按 index 聚合
+                if (delta.TryGetProperty("tool_calls", out var tcDelta) &&
+                    tcDelta.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var tc in tcDelta.EnumerateArray())
+                    {
+                        var idx = tc.GetProperty("index").GetInt32();
+                        if (!toolCalls.TryGetValue(idx, out var acc))
+                        {
+                            acc = new ToolCallAccumulator();
+                            toolCalls[idx] = acc;
+                        }
+                        if (tc.TryGetProperty("id", out var idEl))
+                            acc.Id = idEl.GetString() ?? acc.Id;
+                        if (tc.TryGetProperty("type", out var typeEl))
+                            acc.Type = typeEl.GetString() ?? acc.Type;
+                        if (tc.TryGetProperty("function", out var fnEl))
+                        {
+                            if (fnEl.TryGetProperty("name", out var nameEl))
+                                acc.Name = nameEl.GetString() ?? acc.Name;
+                            if (fnEl.TryGetProperty("arguments", out var argsEl))
+                                acc.ArgumentsJson.Append(argsEl.GetString() ?? "");
+                        }
+                    }
+                }
+
+                // 3) finish_reason
+                if (choice.TryGetProperty("finish_reason", out var frEl) &&
+                    frEl.ValueKind == JsonValueKind.String)
+                {
+                    finishReason = frEl.GetString();
+                }
+            }
+
+            // 4) 收敛: 构造 assistant message (anonymous object 风格, 不引入 ChatMessage 类)
+            var assistantMessage = new
+            {
+                role = "assistant",
+                content = contentBuilder.ToString(),
+                tool_calls = toolCalls.Count > 0
+                    ? toolCalls.OrderBy(kv => kv.Key).Select(kv => new
+                    {
+                        id = kv.Value.Id,
+                        type = kv.Value.Type ?? "function",
+                        function = new
+                        {
+                            name = kv.Value.Name,
+                            arguments = kv.Value.ArgumentsJson.ToString()
+                        }
+                    }).ToArray<object>()
+                    : null
+            };
+            messageList.Add(assistantMessage);
+
+            // 5) 无 tool_call → 正常结束
+            if (toolCalls.Count == 0)
+            {
+                yield return new StreamEvent { Type = "done" };
+                yield break;
+            }
+
+            // 6) 有 tool_call → 执行工具, 注入 tool message, 再发下一轮请求
+            foreach (var (idx, acc) in toolCalls.OrderBy(kv => kv.Key))
+            {
+                yield return new StreamEvent
+                {
+                    Type = "tool_call",
+                    ToolCallId = acc.Id,
+                    ToolName = acc.Name,
+                    ToolArgsJson = acc.ArgumentsJson.ToString()
+                };
+
+                Dictionary<string, object?> args;
+                try
+                {
+                    args = JsonSerializer.Deserialize<Dictionary<string, object?>>(
+                        acc.ArgumentsJson.ToString()) ?? new();
+                }
+                catch
+                {
+                    args = new();
+                }
+
+                var toolResult = await ExecuteToolAsync(acc.Name, args, ct);
+                yield return new StreamEvent
+                {
+                    Type = "tool_result",
+                    ToolCallId = acc.Id,
+                    ToolResultJson = toolResult
+                };
+
+                // tool message 也按 anonymous object 注入, 保持 tool_call_id 字段名
+                messageList.Add(new
+                {
+                    role = "tool",
+                    tool_call_id = acc.Id,
+                    content = toolResult
+                });
+            }
+
+            // 7) continue outer for-loop → 下一轮 stream 请求
+        }
+
+        // 超过 maxRounds 仍未 done
+        yield return new StreamEvent { Type = "error", Error = "Tool call rounds exceeded" };
+    }
 }
