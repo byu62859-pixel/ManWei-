@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Drawer, Input, Button, Empty } from 'antd';
-import { RobotOutlined, CloseOutlined, SendOutlined } from '@ant-design/icons';
+import { CloseOutlined, SendOutlined } from '@ant-design/icons';
+import AiAssistantIcon from '../../assets/ai-assistant.svg?react';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { streamChat } from '../../services/chat';
 import type { ChatMessage } from '../../types/api';
@@ -80,7 +81,7 @@ export function AiAssistantDrawer() {
     <Drawer
       title={
         <div className={styles.drawerHeader}>
-          <RobotOutlined />
+          <AiAssistantIcon style={{ fontSize: 18 }} />
           <span>AI 助手</span>
           <span className={styles.statusDot} data-streaming={isStreaming} />
         </div>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Button, Modal } from 'antd';
-import { RobotOutlined } from '@ant-design/icons';
+import AiAssistantIcon from '../../assets/ai-assistant.svg?react';
 import { useAuthStore } from '../../stores/authStore';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { AiAssistantDrawer } from '../AiAssistantDrawer';
@@ -70,7 +70,7 @@ export function AppShell() {
             </NavLink>
             <Button
               type="text"
-              icon={<RobotOutlined />}
+              icon={<AiAssistantIcon />}
               onClick={openDrawer}
               className={styles.aiButton}
             >
