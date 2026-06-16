@@ -99,10 +99,21 @@ export async function streamChat(
         }
       }
     }
+    // 流自然结束: 刷新 TextDecoder 残留字节, 处理最后一段 buffer
+    buffer += decoder.decode();
+    if (buffer.trim()) {
+      try {
+        const evt = JSON.parse(buffer) as ChatStreamEvent;
+        if (evt.type === 'delta') handlers.onDelta(evt.content);
+        else if (evt.type === 'tool_call') handlers.onToolCall(evt);
+        else if (evt.type === 'tool_result') handlers.onToolResult(evt);
+        else if (evt.type === 'error') handlers.onError(evt.error);
+      } catch { /* ignore */ }
+    }
     // 流自然结束但没有收到 done → 也算 done
     handlers.onDone();
   } catch (err) {
-    if ((err as Error).name === 'AbortError') {
+    if (err instanceof Error && err.name === 'AbortError') {
       handlers.onError('已取消');
     } else {
       handlers.onError(err instanceof Error ? err.message : '流读取错误');
