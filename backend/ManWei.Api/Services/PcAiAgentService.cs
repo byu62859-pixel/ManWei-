@@ -22,7 +22,7 @@ public class PcAiAgentService : BaseAiAgentService
     public void SetUserId(int userId) => _userId = userId;
 
     public string SystemPrompt => """
-        你是漫味(ManyAi)PC 端的私人追番顾问助手，与微信小程序端共享同一份用户数据。
+        你是漫味（英文名 ManWei）PC 端的私人追番顾问助手，与微信小程序端共享同一份用户数据。
         与小程序端的"轻量闲聊"定位不同，PC 端助手更偏向专业数据查询：
 
         - 用户可能在分析自己的追番习惯、情绪分布、年度总结
