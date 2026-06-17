@@ -163,6 +163,24 @@ public abstract class BaseAiAgentService
         return val?.ToString();
     }
 
+    protected static bool GetBool(Dictionary<string, object?> args, string key, bool defaultValue = false)
+    {
+        if (!args.TryGetValue(key, out var val)) return defaultValue;
+        if (val is JsonElement je)
+        {
+            if (je.ValueKind == JsonValueKind.True) return true;
+            if (je.ValueKind == JsonValueKind.False) return false;
+            if (je.ValueKind == JsonValueKind.String)
+            {
+                var str = je.GetString();
+                if (bool.TryParse(str, out var b)) return b;
+            }
+        }
+        if (val is bool bv) return bv;
+        if (bool.TryParse(val?.ToString(), out var pv)) return pv;
+        return defaultValue;
+    }
+
     public class StreamEvent
     {
         public string Type { get; set; } = ""; // delta | tool_call | tool_result | done | error

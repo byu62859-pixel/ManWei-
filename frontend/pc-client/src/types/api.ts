@@ -152,6 +152,40 @@ export type ChatStreamEvent =
   | { type: 'done' }
   | { type: 'error'; error: string };
 
+// ===== 推荐系统 =====
+
+export interface ScoreBreakdown {
+  tagOverlap: number;           // 标签向量点积 [0,1]
+  emotionAffinity: number;      // 情绪亲和度 [0,1]
+  qualityBoost: number;         // BangumiScore归一 [0,1]
+  baseScore: number;            // 0.6·tag+0.4·emo 或 1.0·tag
+  finalScore: number;           // base+0.1·qB [0,1.1]
+  nearestNeighborName: string | null;
+  nearestNeighborAnimeId: number | null;
+}
+
+export interface RecommendItem {
+  animeId: number | null;       // null=Bangumi来源,无本地记录
+  bangumiId: number | null;
+  name: string;
+  cover: string | null;
+  animeType: string | null;
+  bangumiScore: number | null;
+  tags: string[];
+  score: number;
+  breakdown: ScoreBreakdown;
+  reason: string;
+}
+
+export interface RecommendResult {
+  mode: 'full' | 'tag_only' | 'popular';
+  candidatePoolSize: number;
+  items: RecommendItem[];
+  error: string | null;
+}
+
+// ===== PC AI 助手 =====
+
 export interface PcChatRequest {
   message: string;
   history: never[];  // 显式空数组, 标注 server 无状态

@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Card, Pagination, Spin } from 'antd';
+import { Input, Card, Pagination, Spin, Button } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 import { useNotify } from '../../hooks/useNotify';
 import request from '../../services/request';
-import type { Anime } from '../../types/api';
+import { getRecommendations } from '../../services/recommendations';
+import { RecommendAnimeCard } from '../../components/RecommendAnimeCard';
+import type { Anime, RecommendResult } from '../../types/api';
 import styles from './Home.module.css';
 
 const { Search } = Input;
@@ -11,6 +14,9 @@ const { Search } = Input;
 export function Home() {
   const notify = useNotify();
   const navigate = useNavigate();
+  const [recResult, setRecResult] = useState<RecommendResult | null>(null);
+  const [recLoading, setRecLoading] = useState(true);
+  const [recRefreshing, setRecRefreshing] = useState(false);
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
@@ -35,6 +41,22 @@ export function Home() {
     }
   }, [page, pageSize, keyword]);
 
+  // 推荐 section：仅 mount 时拉取 1 次（纯用户画像驱动，不随搜索词变化）
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await getRecommendations({ topK: 5 });
+        if (!cancelled) setRecResult(r.error ? null : r);
+      } catch {
+        if (!cancelled) setRecResult(null);
+      } finally {
+        if (!cancelled) setRecLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     loadAnime();
   }, [loadAnime]);
@@ -52,6 +74,18 @@ export function Home() {
     navigate(`/anime/${id}`);
   };
 
+  const handleRefreshRec = async () => {
+    setRecRefreshing(true);
+    try {
+      const r = await getRecommendations({ topK: 5 });
+      setRecResult(r.error ? null : r);
+    } catch {
+      /* 静默降级 */
+    } finally {
+      setRecRefreshing(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -67,6 +101,67 @@ export function Home() {
               className={styles.searchInput}
             />
           </div>
+
+          {/* 为你推荐 */}
+          {!keyword && (() => {
+            // 仅 mount 拉取一次，不随全局搜索词联动
+            if (recLoading) {
+              return (
+                <section className={styles.recommendSection}>
+                  <h2 className={styles.recommendTitle}>为你推荐</h2>
+                  <Spin size="small">
+                    <div className={styles.recLoadingPlaceholder} />
+                  </Spin>
+                </section>
+              );
+            }
+            if (!recResult) {
+              return (
+                <section className={styles.recommendSection}>
+                  <h2 className={styles.recommendTitle}>为你推荐</h2>
+                  <p className={styles.recEmptyText}>追番并标记情感标签后，为你生成个性化推荐</p>
+                </section>
+              );
+            }
+            const isPopular = recResult.mode === 'popular';
+            return (
+              <section className={styles.recommendSection}>
+                <div className={styles.recommendHeader}>
+                  <h2 className={styles.recommendTitle}>
+                    {isPopular ? '热门动漫' : '为你推荐'}
+                  </h2>
+                  <Button
+                    size="small"
+                    type="text"
+                    icon={<ReloadOutlined />}
+                    loading={recRefreshing}
+                    onClick={handleRefreshRec}
+                    className={styles.refreshBtn}
+                  >
+                    换一批
+                  </Button>
+                  {isPopular && (
+                    <span className={styles.recommendSubtitle}>标记更多追番后解锁个性化推荐</span>
+                  )}
+                  {recResult.mode === 'tag_only' && (
+                    <span className={styles.recommendSubtitle}>基于你的收藏标签推荐</span>
+                  )}
+                </div>
+                <div className={styles.recommendRow}>
+                  {recResult.items.slice(0, 5).map((it) => (
+                    <RecommendAnimeCard
+                      key={it.bangumiId ?? it.name}
+                      item={it}
+                      mode={recResult.mode}
+                      onClick={(item) => {
+                        if (item.animeId) navigate(`/anime/${item.animeId}`);
+                      }}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
 
           <Spin spinning={loading}>
             <div className={styles.animeGrid}>

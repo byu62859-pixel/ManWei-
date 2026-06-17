@@ -6,6 +6,7 @@ public class RecommendRequest
     public string? Keyword { get; set; }       // 可选关键词（用于 Bangumi 搜索补充候选池）
     public string? AnimeType { get; set; }     // 可选类型筛选（TV/剧场版/OVA/WEB），null=不限
     public int TopK { get; set; } = 5;         // 1-20，默认 5
+    public bool Deterministic { get; set; } = false; // true=固定Top5(论文复现), false=窗口随机采样
 }
 
 /// <summary>单个推荐项的评分拆解（论文要展示）</summary>

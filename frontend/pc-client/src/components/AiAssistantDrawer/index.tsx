@@ -4,9 +4,10 @@ import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AiAssistantIcon } from '../AiAssistantIcon';
+import { RecommendAnimeCard } from '../RecommendAnimeCard';
 import { useAiAssistantStore } from '../../stores/aiAssistantStore';
 import { streamChat } from '../../services/chat';
-import type { ChatMessage } from '../../types/api';
+import type { ChatMessage, RecommendResult } from '../../types/api';
 import styles from './AiAssistantDrawer.module.css';
 
 export function AiAssistantDrawer() {
@@ -176,6 +177,31 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             })()}</pre>
           </details>
         ))}
+        {!message.isStreaming && message.toolCalls
+          ?.filter(tc => tc.name === 'recommend_anime' && tc.resultJson)
+          .map(tc => {
+            let rec: RecommendResult | null = null;
+            try { rec = JSON.parse(tc.resultJson); } catch { /* fallback to raw below */ }
+            if (!rec?.items?.length) return null;
+            return (
+              <div key={tc.id} className={styles.toolRecCardBlock}>
+                <div className={styles.toolRecLabel}>
+                  {rec.mode === 'popular' ? '热门推荐' : '为你推荐'}
+                </div>
+                {rec.items.slice(0, 3).map((it, idx) => (
+                  <RecommendAnimeCard
+                    key={it.bangumiId ?? `rec-${idx}`}
+                    item={it}
+                    mode={rec.mode}
+                    compact
+                    onClick={(item) => {
+                      if (item.animeId) window.open(`/anime/${item.animeId}`, '_blank');
+                    }}
+                  />
+                ))}
+              </div>
+            );
+          })}
         {message.isError && (
           <div className={styles.messageError}>连接中断，以上内容可能不完整</div>
         )}

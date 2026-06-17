@@ -115,7 +115,8 @@ public class PcAiAgentService : BaseAiAgentService
         {
             Keyword = GetString(args, "keyword"),
             AnimeType = GetString(args, "animeType"),
-            TopK = GetInt(args, "topK", 5)
+            TopK = GetInt(args, "topK", 5),
+            Deterministic = GetBool(args, "deterministic")
         };
         if (req.TopK < 1) req.TopK = 5;
         if (req.TopK > 20) req.TopK = 20;

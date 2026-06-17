@@ -29,6 +29,7 @@ public class RecommendationsController : ControllerBase
         [FromQuery] string? keyword,
         [FromQuery] string? animeType,
         [FromQuery] int topK = 5,
+        [FromQuery] bool deterministic = false,
         CancellationToken ct = default)
     {
         // userId (CLAUDE.md 红线: int.TryParse)
@@ -42,7 +43,8 @@ public class RecommendationsController : ControllerBase
         {
             Keyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword,
             AnimeType = string.IsNullOrWhiteSpace(animeType) ? null : animeType,
-            TopK = topK
+            TopK = topK,
+            Deterministic = deterministic
         };
 
         var result = await _service.RecommendAsync(userId, req, ct);

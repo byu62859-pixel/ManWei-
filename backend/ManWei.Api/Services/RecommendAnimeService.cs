@@ -98,10 +98,29 @@ public class RecommendAnimeService : IRecommendAnimeService
         // ===== 步骤 5：分支打分 =====
         if (mode == ColdStartResolver.ModePopular)
         {
-            // popular 模式：按 BangumiScore 降序，跳过 Scorer
-            var popularItems = candidates
-                .OrderByDescending(c => c.BangumiScore ?? 0.0)
-                .Take(topK)
+            // popular 模式：按 BangumiScore 降序，窗口随机采样
+            int popularWindow = Math.Min(candidates.Count, 10); // 冷启动用户更需要"确实是热门"
+            IEnumerable<Candidate> selectedCandidates;
+            if (req.Deterministic)
+            {
+                selectedCandidates = candidates
+                    .OrderByDescending(c => c.BangumiScore ?? 0.0)
+                    .Take(topK);
+            }
+            else
+            {
+                var window = candidates
+                    .OrderByDescending(c => c.BangumiScore ?? 0.0)
+                    .Take(popularWindow)
+                    .ToList();
+                Shuffle(window);
+                // 先 Take 取随机 K 条，再排序——选取随机，展示有序
+                selectedCandidates = window
+                    .Take(topK)
+                    .OrderByDescending(c => c.BangumiScore ?? 0.0);
+            }
+
+            var popularItems = selectedCandidates
                 .Select(c => BuildPopularItem(c, mode))
                 .ToList();
 
@@ -177,11 +196,32 @@ public class RecommendAnimeService : IRecommendAnimeService
             scored.Add((c, breakdown.FinalScore, breakdown));
         }
 
-        // ===== 步骤 6：排序 + TopK =====
-        var top = scored
-            .OrderByDescending(x => x.finalScore)
-            .Take(topK)
-            .ToList();
+        // ===== 步骤 6：窗口随机采样 + TopK =====
+        // full/tag_only 窗口=20, 保证随机性同时保持相关性
+        int fullWindow = Math.Min(scored.Count, Math.Max(topK * 4, 20));
+        List<(Candidate, double, ScoreBreakdown)> top;
+        if (req.Deterministic)
+        {
+            // 论文复现模式：固定 TopK，不随机
+            top = scored
+                .OrderByDescending(x => x.finalScore)
+                .Take(topK)
+                .ToList();
+        }
+        else
+        {
+            // 日常模式：Top 窗口内 Fisher-Yates shuffle
+            var window = scored
+                .OrderByDescending(x => x.finalScore)
+                .Take(fullWindow)
+                .ToList();
+            Shuffle(window);
+            // 先 Take 取随机 K 条，再排序——选取随机，展示有序
+            top = window
+                .Take(topK)
+                .OrderByDescending(x => x.finalScore)
+                .ToList();
+        }
 
         // ===== 步骤 7：构造 RecommendItem =====
         var items = new List<RecommendItem>(top.Count);
@@ -314,6 +354,19 @@ public class RecommendAnimeService : IRecommendAnimeService
             Breakdown = breakdown,
             Reason = reason
         };
+    }
+
+    /// <summary>
+    /// Fisher-Yates shuffle（用 Random.Shared）。
+    /// Random.Shared 无法注入固定 seed——未来如需单测覆盖，需抽 IRandomProvider。
+    /// </summary>
+    private static void Shuffle<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Shared.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
 }
