@@ -46,8 +46,12 @@ public static class Scorer
             {
                 foreach (var t in candidate.Tags)
                 {
-                    // 候选的 tag 不在用户画像里 → 跳过该项（权重 0）
-                    if (!userTag.Weights.TryGetValue(t.Name, out var weight))
+                    // 规范化候选 tag key，与 TagProfileBuilder / TagNormalizer 保持一致
+                    // （修复：此前直接用 t.Name 查 normalized 字典，ASCII 大小写不一致导致 TryGetValue 失败）
+                    var candidateKey = TagNormalizer.Normalize(t.Name);
+                    if (string.IsNullOrEmpty(candidateKey))
+                        continue;
+                    if (!userTag.Weights.TryGetValue(candidateKey, out var weight))
                     {
                         continue;
                     }

@@ -9,6 +9,7 @@
 ## 已知坑点
 
 - **EmotionTags.Name 空格污染** — 写入时 `Trim()`，查询时 `t.Name == query.TagName.Trim()`
+- **Tag 字典 key 规范化不一致** — `Dictionary<string,T>` 用 normalized key 写入（`Trim().ToLowerInvariant()`），所有查询方也必须走同一 `TagNormalizer.Normalize()` 再做 `TryGetValue`；否则 ASCII 大小写标签（如 `"P.A.WORKS"` vs `"p.a.works"`）全部匹配失败 → tagOverlap=0。Recommendation 子目录抽了公共 `TagNormalizer` 杜绝重复定义。
 - **Rating null 排最后** — SQL Server 的 `OrderByDescending(f => f.Rating == null).ThenByDescending(f => f.Rating)` 实现 NULLS LAST
 - **onShow 深分页重置陷阱** — 小程序收藏页需用 `needRefreshFavorites` 标志位控制刷新时机
 - **收藏页 wx:for 变量遮蔽** — 内外层 `wx:for` 必须显式命名 `wx:for-item` / `wx:for-index`

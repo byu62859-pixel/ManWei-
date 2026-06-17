@@ -93,7 +93,7 @@ public class TagProfileBuilder
             foreach (var tag in anime.AnimeTags)
             {
                 // 规范化 key
-                string key = NormalizeKey(tag.Name);
+                string key = TagNormalizer.Normalize(tag.Name);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -176,13 +176,4 @@ public class TagProfileBuilder
         };
     }
 
-    /// <summary>
-    /// 标签 key 规范化：小写 + trim。
-    /// 防止中英文不一致或前后空格导致 key 不匹配。
-    /// </summary>
-    private static string NormalizeKey(string? name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
-        return name.Trim().ToLowerInvariant();
-    }
 }

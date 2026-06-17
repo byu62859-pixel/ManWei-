@@ -48,8 +48,7 @@ public static class ReasonBuilder
 
             "tag_only" => string.Format(
                 CultureInfo.InvariantCulture,
-                "与你的收藏标签最匹配的是《{0}》的风格，标签重合 {1}%，Bangumi 评分 {2}。",
-                neighborName,
+                "标签重合 {0}%，匹配你收藏中的风格类型，Bangumi 评分 {1}。",
                 tagOverlapPercent,
                 scoreText),
 

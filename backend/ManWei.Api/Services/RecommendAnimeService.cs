@@ -233,7 +233,7 @@ public class RecommendAnimeService : IRecommendAnimeService
 
         // 预计算 candidate 各 tag 的归一化 key
         var cTagKeys = candidate.Tags
-            .Select(t => NormalizeKey(t.Name))
+            .Select(t => TagNormalizer.Normalize(t.Name))
             .Where(k => !string.IsNullOrEmpty(k))
             .ToList();
         if (cTagKeys.Count == 0) return null;
@@ -257,7 +257,7 @@ public class RecommendAnimeService : IRecommendAnimeService
                 bool hit = false;
                 foreach (var ht in hAnime.Tags)
                 {
-                    if (NormalizeKey(ht.Name) == cKey)
+                    if (TagNormalizer.Normalize(ht.Name) == cKey)
                     {
                         hit = true;
                         break;
@@ -316,12 +316,4 @@ public class RecommendAnimeService : IRecommendAnimeService
         };
     }
 
-    /// <summary>
-    /// 标签 key 规范化：小写 + trim。和 TagProfileBuilder.NormalizeKey 保持一致。
-    /// </summary>
-    private static string NormalizeKey(string? name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
-        return name.Trim().ToLowerInvariant();
-    }
 }
