@@ -218,25 +218,27 @@ TopK = OrderByDescending(score) → Take(topK) → DTO 含 breakdown { tagOverla
 
 | # | 步骤 | 状态 |
 |---|---|---|
-| 1 | 新建 DTO/Models — `Services/Recommendation/Models.cs` | ⬜ 未开始 |
-| 2 | TagProfileBuilder — TF-IDF + max-pool + L2 | ⬜ 未开始 |
-| 3 | EmotionProfileBuilder — avg/std + `HasProfile(H)` 判定 | ⬜ 未开始 |
-| 4 | CandidatePoolBuilder — 双源 + BangumiId 去重 + 排除已收藏 | ⬜ 未开始 |
-| 5 | Scorer — 纯函数打分 | ⬜ 未开始 |
-| 6 | ColdStartResolver — 3 档离散判定 | ⬜ 未开始 |
-| 7 | ReasonBuilder — 模板化解释 | ⬜ 未开始 |
-| 8 | RecommendAnimeService — 编排（含 IRecommendAnimeService 接口） | ⬜ 未开始 |
-| 9 | PcAiAgentService — 接入（构造函数加 2 个 service；switch 加 2 个 case） | ⬜ 未开始 |
-| 10 | PcAiTools — 改 search_anime schema + 新增 recommend_anime | ⬜ 未开始 |
-| 11 | RecommendationsController — `GET /api/recommendations` | ⬜ 未开始 |
-| 12 | Program.cs — DI 注册 IRecommendAnimeService | ⬜ 未开始 |
-| 13 | SystemPrompt 同步更新措辞 | ⬜ 未开始 |
-| 14 | `dotnet build` 验证通过 | ⬜ 未开始 |
-| 15 | `docs/recommendation.md` — 论文用说明文档 | ⬜ 未开始 |
-| 16 | **手动 curl 测试 3 档冷启动场景** | ⬜ 未开始 |
-| 17 | **commit 1-2 个** | ⬜ 未开始 |
+| 1 | 新建 DTO/Models — `Services/Recommendation/Models.cs`   | ✅ 已完成 |
+| 2 | TagProfileBuilder — TF-IDF + max-pool + L2   | ✅ 已完成 |
+| 3 | EmotionProfileBuilder — avg/std + `HasProfile(H)` 判定   | ✅ 已完成 |
+| 4 | CandidatePoolBuilder — 双源 + BangumiId 去重 + 排除已收藏   | ✅ 已完成 |
+| 5 | Scorer — 纯函数打分   | ✅ 已完成 |
+| 6 | ColdStartResolver — 3 档离散判定   | ✅ 已完成 |
+| 7 | ReasonBuilder — 模板化解释   | ✅ 已完成 |
+| 8 | RecommendAnimeService — 编排（含 IRecommendAnimeService 接口）   | ✅ 已完成 |
+| 9 | PcAiAgentService — 接入（构造函数加 2 个 service；switch 加 2 个 case）   | ✅ 已完成 |
+| 10 | PcAiTools — 改 search_anime schema + 新增 recommend_anime   | ✅ 已完成 |
+| 11 | RecommendationsController — `GET /api/recommendations`   | ✅ 已完成 |
+| 12 | Program.cs — DI 注册 IRecommendAnimeService   | ✅ 已完成 |
+| 13 | SystemPrompt 同步更新措辞   | ✅ 已完成 |
+| 14 | `dotnet build` 验证通过   | ✅ 已完成 |
+| 15 | `docs/recommendation.md` — 论文用说明文档   | ✅ 已完成 |
+| 16 | **手动 curl 测试 3 档冷启动场景**   | ✅ 已完成 |
+| 17 | **commit 1-2 个**   | ✅ 已完成 |
 
 > 状态图例：✅ 已完成 / 🔄 进行中 / ⬜ 未开始
+>
+> **本轮（2026-06-17）实施完成**：所有 17 步已 ✅。Build 通过、3 档冷启动 curl 实测通过。详见 §四状态表。
 
 ---
 
