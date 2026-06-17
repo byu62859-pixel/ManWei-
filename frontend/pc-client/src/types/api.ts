@@ -184,6 +184,9 @@ export interface RecommendResult {
   error: string | null;
 }
 
+/** recommend_anime 接口返回 Result<RecommendResult> 包装（与 COLLABORATION.md §一 约定一致） */
+export type RecommendApiResponse = ApiResponse<RecommendResult>;
+
 // ===== PC AI 助手 =====
 
 export interface PcChatRequest {

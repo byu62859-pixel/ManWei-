@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ManWei.Api.Common;
 using ManWei.Api.Services;
 using ManWei.Api.Services.Recommendation;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +26,7 @@ public class RecommendationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<RecommendResult>> Get(
+    public async Task<ActionResult<Result<RecommendResult>>> Get(
         [FromQuery] string? keyword,
         [FromQuery] string? animeType,
         [FromQuery] int topK = 5,
@@ -36,7 +37,7 @@ public class RecommendationsController : ControllerBase
         var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(idStr, out var userId))
         {
-            return Unauthorized(new { error = "未登录" });
+            return Unauthorized(Result<RecommendResult>.Fail(401, "未登录"));
         }
 
         var req = new RecommendRequest
@@ -48,6 +49,6 @@ public class RecommendationsController : ControllerBase
         };
 
         var result = await _service.RecommendAsync(userId, req, ct);
-        return Ok(result);
+        return Ok(Result<RecommendResult>.Success(result));
     }
 }

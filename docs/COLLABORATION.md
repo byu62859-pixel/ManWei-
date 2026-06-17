@@ -193,6 +193,59 @@ const tagName = query.TagName.trim();
 |------|------|------|------|
 | POST | `/api/aiagent/chat` | `{ Message, History? }` | Admin |
 | POST | `/api/wxaiagent/chat` | `{ Message, History? }` | 需登录 |
+| POST | `/api/pcaia/chat-stream` | `{ Message, History? }` | 需登录 |
+
+### 3.10 个性化推荐 `/api/recommendations`
+
+| 方法 | 路径 | 参数 | 授权 |
+|------|------|------|------|
+| GET | `/api/recommendations` | `Keyword?`, `AnimeType?`, `TopK=5` (1-20), `Deterministic=false` | 需登录 |
+
+**响应**（标准 `Result<RecommendResult>` 包装）：
+
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "mode": "full" | "tag_only" | "popular",
+    "candidatePoolSize": 50,
+    "items": [{
+      "animeId": 92,
+      "bangumiId": 58949,
+      "name": "言叶之庭",
+      "cover": "https://...",
+      "animeType": "剧场版",
+      "bangumiScore": 7.4,
+      "tags": ["新海诚", "剧场版", "爱情"],
+      "score": 0.5017,
+      "breakdown": {
+        "tagOverlap": 0.183,
+        "emotionAffinity": 0.903,
+        "qualityBoost": 0.74,
+        "baseScore": 0.431,
+        "finalScore": 0.5017,
+        "nearestNeighborName": "朝花夕誓",
+        "nearestNeighborAnimeId": 103
+      },
+      "reason": "与《朝花夕誓》最相似，标签重合 18%，..."
+    }],
+    "error": null
+  },
+  "isSuccess": true
+}
+```
+
+**Mode 冷启动档位**：
+- `full` — 用户有 H 番 + 情绪画像（个性化最强）
+- `tag_only` — H 番有但无情绪记录（仅标签推荐）
+- `popular` — 新用户无 H（按 BangumiScore 降序）
+
+**Deterministic 模式**：
+- 默认 `false`：Top 窗口（full/tag_only=20, popular=10）内随机采样，每次请求结果不同
+- `?deterministic=true`：固定 TopK，论文截图/复现用
+
+**前端取数路径**：`res.data.items`，与项目其他接口一致。`animeId` 可能为 null（Bangumi 来源无本地记录），卡片不可点击跳转。
 
 ---
 

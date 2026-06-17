@@ -122,7 +122,9 @@ public class PcAiAgentService : BaseAiAgentService
         if (req.TopK > 20) req.TopK = 20;
 
         var result = await _recommendService.RecommendAsync(_userId!.Value, req, ct);
-        var json = JsonSerializer.Serialize(result);
+        // 包装为标准 Result<T> JSON，与 REST 接口 /api/recommendations 一致
+        var wrapped = new { code = 200, message = "操作成功", data = result, isSuccess = true };
+        var json = JsonSerializer.Serialize(wrapped);
         _pcLogger.LogDebug("[RECOMMEND-TOOL] userId={UserId} mode={Mode} topK={TopK} names=[{Names}]",
             _userId, result.Mode, req.TopK, string.Join(", ", result.Items.Select(i => i.Name)));
         return json;

@@ -181,7 +181,11 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           ?.filter(tc => tc.name === 'recommend_anime' && tc.resultJson)
           .map(tc => {
             let rec: RecommendResult | null = null;
-            try { rec = JSON.parse(tc.resultJson); } catch { /* fallback to raw below */ }
+            try {
+              // AI tool 返回 Result<T> 包装，与 REST 接口一致
+              const wrapped = JSON.parse(tc.resultJson);
+              rec = wrapped?.data ?? wrapped;  // 兼容裸 JSON（防御）
+            } catch { /* fallback */ }
             if (!rec?.items?.length) return null;
             return (
               <div key={tc.id} className={styles.toolRecCardBlock}>
