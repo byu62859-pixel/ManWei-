@@ -10,6 +10,7 @@ public class PcAiAgentService : BaseAiAgentService
     private readonly AppDbContext _context;
     private readonly IBangumiService _bangumiService;
     private readonly IRecommendAnimeService _recommendService;
+    private readonly ILogger<PcAiAgentService> _pcLogger;
     private int? _userId;
 
     public PcAiAgentService(
@@ -24,6 +25,7 @@ public class PcAiAgentService : BaseAiAgentService
         _context = context;
         _bangumiService = bangumiService;
         _recommendService = recommendService;
+        _pcLogger = logger;
     }
 
     public void SetUserId(int userId) => _userId = userId;
@@ -119,7 +121,10 @@ public class PcAiAgentService : BaseAiAgentService
         if (req.TopK > 20) req.TopK = 20;
 
         var result = await _recommendService.RecommendAsync(_userId!.Value, req, ct);
-        return JsonSerializer.Serialize(result);
+        var json = JsonSerializer.Serialize(result);
+        _pcLogger.LogDebug("[RECOMMEND-TOOL] userId={UserId} mode={Mode} topK={TopK} names=[{Names}]",
+            _userId, result.Mode, req.TopK, string.Join(", ", result.Items.Select(i => i.Name)));
+        return json;
     }
 
     private async Task<string> QueryMyFavoritesAsync(
