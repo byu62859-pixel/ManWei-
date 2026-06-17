@@ -50,19 +50,41 @@ public static class PcAiTools
         new AiTool
         {
             Name = "search_anime",
-            Description = "按关键词搜索动漫(本版未实现, 调用将返回 not_implemented)。",
+            Description = "按关键词搜索动漫（调用 Bangumi API）。" +
+                          "必须参数: keyword (字符串)。" +
+                          "可选参数: limit (1-25, 默认10)。" +
+                          "返回: count, items: [{id, name, summary, cover, score, tags}]。",
             Parameters = """
                 {
                     "type": "object",
-                    "properties": { "keyword": { "type": "string" } }
+                    "properties": {
+                        "keyword": { "type": "string" },
+                        "limit": { "type": "integer", "minimum": 1, "maximum": 25 }
+                    },
+                    "required": ["keyword"]
                 }
                 """
         },
         new AiTool
         {
-            Name = "query_global_emotion_tags",
-            Description = "查询用户常用的情绪标签(本版未实现, 调用将返回 not_implemented)。",
-            Parameters = """{"type":"object","properties":{}}"""
+            Name = "recommend_anime",
+            Description = "基于用户高分番 + 情绪画像 + Bangumi 搜索的个性化推荐。" +
+                          "可选参数: keyword (字符串, 用于补充 Bangumi 搜索候选)," +
+                          " animeType (类型筛选: TV/剧场版/OVA/WEB)," +
+                          " topK (1-20, 默认5)。" +
+                          "返回: mode (full/tag_only/popular), candidatePoolSize, items: [" +
+                          "{animeId, bangumiId, name, cover, score, tags, score, breakdown, reason}]。" +
+                          "注: candidates=0 时 mode=popular, error=no_candidates。",
+            Parameters = """
+                {
+                    "type": "object",
+                    "properties": {
+                        "keyword": { "type": "string" },
+                        "animeType": { "type": "string", "enum": ["TV", "剧场版", "OVA", "WEB"] },
+                        "topK": { "type": "integer", "minimum": 1, "maximum": 20 }
+                    }
+                }
+                """
         }
     };
 }

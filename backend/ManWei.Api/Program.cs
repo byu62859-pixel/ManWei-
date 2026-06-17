@@ -52,6 +52,13 @@ builder.Services.AddScoped<IAiAgentService, AiAgentService>();
 builder.Services.AddScoped<WxAiAgentService>();
 builder.Services.AddScoped<PcAiAgentService>();
 
+// 注册推荐服务（Scoped，依赖 Scoped 的 AppDbContext + IBangumiService）
+builder.Services.AddScoped<IRecommendAnimeService, RecommendAnimeService>();
+// 注册推荐子组件（concrete class，DI 容器按需解析）
+builder.Services.AddScoped<ManWei.Api.Services.Recommendation.TagProfileBuilder>();
+builder.Services.AddScoped<ManWei.Api.Services.Recommendation.EmotionProfileBuilder>();
+builder.Services.AddScoped<ManWei.Api.Services.Recommendation.CandidatePoolBuilder>();
+
 // 注册 Bangumi 全局限流器（Singleton，跨 Scoped 服务共享）
 builder.Services.AddSingleton<BangumiRateLimiter>();
 

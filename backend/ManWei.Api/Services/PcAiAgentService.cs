@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ManWei.Api.Data;
+using ManWei.Api.Services.Recommendation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManWei.Api.Services;
@@ -7,16 +8,22 @@ namespace ManWei.Api.Services;
 public class PcAiAgentService : BaseAiAgentService
 {
     private readonly AppDbContext _context;
+    private readonly IBangumiService _bangumiService;
+    private readonly IRecommendAnimeService _recommendService;
     private int? _userId;
 
     public PcAiAgentService(
         IHttpClientFactory httpClientFactory,
         IConfiguration config,
         ILogger<PcAiAgentService> logger,
-        AppDbContext context)
+        AppDbContext context,
+        IBangumiService bangumiService,
+        IRecommendAnimeService recommendService)
         : base(httpClientFactory, config, (ILogger)logger)
     {
         _context = context;
+        _bangumiService = bangumiService;
+        _recommendService = recommendService;
     }
 
     public void SetUserId(int userId) => _userId = userId;
@@ -33,8 +40,8 @@ public class PcAiAgentService : BaseAiAgentService
         - query_my_favorites: 查询我的收藏(支持状态筛选: 0=想看 1=在看 2=看过)
         - query_user_stats: 查询我的追番统计(总数/时长/评分分布)
         - query_anime_emotion_curve: 查询某部番(按 animeId)我的情绪曲线数据
-        - search_anime: 搜索动漫(留桩,本版未实现)
-        - query_global_emotion_tags: 查询我常用的情绪标签(留桩)
+        - search_anime: 按关键词搜索动漫(调 Bangumi API)
+        - recommend_anime: 基于高分番 + 情绪画像 + Bangumi 搜索的个性化推荐(返回 top5)
 
         使用工具时要主动、简洁，不要过度调用。
         回答要有数据支撑，但避免堆砌数字。
@@ -64,10 +71,55 @@ public class PcAiAgentService : BaseAiAgentService
             "query_my_favorites" => await QueryMyFavoritesAsync(args, ct),
             "query_user_stats" => await QueryUserStatsAsync(ct),
             "query_anime_emotion_curve" => await QueryEmotionCurveAsync(args, ct),
-            "search_anime" => """{"error":"not_implemented","message":"该工具将在 v2 实现"}""",
-            "query_global_emotion_tags" => """{"error":"not_implemented","message":"该工具将在 v2 实现"}""",
+            "search_anime" => await SearchAnimeAsync(args, ct),
+            "recommend_anime" => await RecommendAnimeAsync(args, ct),
             _ => """{"error":"unknown_tool"}"""
         };
+    }
+
+    private async Task<string> SearchAnimeAsync(
+        Dictionary<string, object?> args, CancellationToken ct)
+    {
+        var keyword = GetString(args, "keyword");
+        if (string.IsNullOrWhiteSpace(keyword))
+            return """{"error":"keyword required"}""";
+
+        var limit = GetInt(args, "limit", 10);
+        if (limit < 1) limit = 1;
+        if (limit > 25) limit = 25;
+
+        var hits = await _bangumiService.SearchAsync(keyword, limit);
+
+        return JsonSerializer.Serialize(new
+        {
+            keyword,
+            count = hits.Count,
+            items = hits.Select(h => new
+            {
+                h.Id,
+                Name = !string.IsNullOrWhiteSpace(h.NameCn) ? h.NameCn : h.Name,
+                h.Summary,
+                Cover = h.Images?.Large ?? h.Images?.Medium ?? h.Images?.Common ?? h.Images?.Small,
+                Score = h.Rating?.Score ?? h.Score,
+                Tags = h.Tags?.OrderByDescending(t => t.Count).Take(5).Select(t => t.Name).ToList()
+            })
+        });
+    }
+
+    private async Task<string> RecommendAnimeAsync(
+        Dictionary<string, object?> args, CancellationToken ct)
+    {
+        var req = new RecommendRequest
+        {
+            Keyword = GetString(args, "keyword"),
+            AnimeType = GetString(args, "animeType"),
+            TopK = GetInt(args, "topK", 5)
+        };
+        if (req.TopK < 1) req.TopK = 5;
+        if (req.TopK > 20) req.TopK = 20;
+
+        var result = await _recommendService.RecommendAsync(_userId!.Value, req, ct);
+        return JsonSerializer.Serialize(result);
     }
 
     private async Task<string> QueryMyFavoritesAsync(
