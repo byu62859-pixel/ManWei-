@@ -7,16 +7,18 @@
 
 <table>
   <tr>
-    <td align="center"><b>PC 用户端（登录页）</b></td>
-    <td align="center"><b>推荐接口（DeepSeek AI 集成）</b></td>
+    <td align="center" width="50%"><b>PC 用户端（登录页）</b></td>
+    <td align="center" width="50%"><b>推荐接口（DeepSeek AI 集成）</b></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/preview-login.png" alt="PC 用户端登录页" width="500"/></td>
-    <td><img src="docs/assets/preview-recommendation.png" alt="推荐接口响应（命中咒术回战 / 鬼灭之刃 / 夏日重现）" width="500"/></td>
+    <td><a href="docs/assets/preview-login.png"><img src="https://raw.githubusercontent.com/byu62859-pixel/ManWei-/main/docs/assets/preview-login.png" alt="PC 用户端登录页" width="500"/></a></td>
+    <td><a href="docs/assets/preview-recommendation.png"><img src="https://raw.githubusercontent.com/byu62859-pixel/ManWei-/main/docs/assets/preview-recommendation.png" alt="推荐接口响应（命中咒术回战 / 鬼灭之刃 / 夏日重现）" width="500"/></a></td>
   </tr>
 </table>
 
 > PC 用户端基于 React 19 + TypeScript + Vite，集成 ECharts 情感曲线与词云可视化。
+>
+> 💡 **看不到图？** 国内访问 `raw.githubusercontent.com` 可能被墙。点图片或[登录页](docs/assets/preview-login.png) / [推荐接口](docs/assets/preview-recommendation.png) 直接打开 GitHub 内的文件即可查看。
 
 ## ✨ 项目亮点
 
