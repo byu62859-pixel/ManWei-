@@ -61,3 +61,10 @@ ManWeiDB-*
 .claude/
 .agents/
 skills-lock.json
+
+# Personal resume / Word temp files (NOT project assets)
+docs/baiyu_resume.html
+docs/白宇_AI应用开发_简历.html
+docs/~$*.html
+docs/~$*.docx
+docs/~$*
