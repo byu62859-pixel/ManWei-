@@ -62,15 +62,10 @@ ManWeiDB-*
 .agents/
 skills-lock.json
 
-# Personal resume / Word temp files (NOT project assets)
-docs/baiyu_resume.html
-docs/白宇_AI应用开发_简历.html
+# Word temp files (NOT project assets — these are Office lock files)
 docs/~$*.html
 docs/~$*.docx
 docs/~$*
-
-# 个人写作产出 — 不应上传，按 CLAUDE.md「Git 上传/本地保留规则」第一类
-docs/Thesis-FullText.md
 
 # 二进制文件 — 大体积/频繁变动，git 不适合跟踪
 # 收紧到具体子目录，避免误排除 docs/ 下需要公开的 .docx/.pptx
