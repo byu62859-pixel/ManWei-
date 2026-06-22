@@ -71,3 +71,4 @@ docs/~$*
 # 收紧到具体子目录，避免误排除 docs/ 下需要公开的 .docx/.pptx
 docs/test-report/*.docx
 docs/test-report/*.pptx
+tools/
