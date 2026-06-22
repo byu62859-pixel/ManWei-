@@ -3,6 +3,21 @@
 > 面向动漫爱好者的情感管理社区，集成 DeepSeek 大模型实现评论情绪自动标注。
 > 全程使用 Claude Code 协作开发。
 
+## 📸 项目预览
+
+<table>
+  <tr>
+    <td align="center"><b>PC 用户端（登录页）</b></td>
+    <td align="center"><b>推荐接口（DeepSeek AI 集成）</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/preview-login.png" alt="PC 用户端登录页" width="500"/></td>
+    <td><img src="docs/assets/preview-recommendation.png" alt="推荐接口响应（命中咒术回战 / 鬼灭之刃 / 夏日重现）" width="500"/></td>
+  </tr>
+</table>
+
+> PC 用户端基于 React 19 + TypeScript + Vite，集成 ECharts 情感曲线与词云可视化。
+
 ## ✨ 项目亮点
 
 - **AI 集成**：自研 AI 助手服务抽象类，支撑管理端 / PC 端 / 小程序端三端复用；为情绪分类设计多版 Prompt 模板
