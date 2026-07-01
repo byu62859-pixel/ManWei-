@@ -104,3 +104,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# ==========================================
+# 部署 - SSL 证书（DEVELOP_GUIDE §一"绝密隐私"扩展）
+# ==========================================
+deploy/certs/

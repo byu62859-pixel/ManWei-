@@ -126,7 +126,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const currentUserId = authStore.userId
-const baseURL = 'http://localhost:5150'
+const baseURL = ''
 const getAvatarUrl = (avatar) => avatar ? (avatar.startsWith('http') ? avatar : baseURL + avatar) : ''
 
 const loading = ref(true)
