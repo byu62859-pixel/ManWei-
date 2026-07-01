@@ -83,7 +83,7 @@
 - **Rating null 排最后** — SQL Server 的 `OrderByDescending(f => f.Rating == null).ThenByDescending(f => f.Rating)` 实现 NULLS LAST
 - **onShow 深分页重置陷阱** — 小程序收藏页需用 `needRefreshFavorites` 标志位控制刷新时机
 - **收藏页 wx:for 变量遮蔽** — 内外层 `wx:for` 必须显式命名 `wx:for-item` / `wx:for-index`
-- **dotnet run 进程锁定** — 编译前先 `taskkill //F //IM "ManWei.Api.exe"`
+- **dotnet run 进程锁定**（仅 Windows） — 编译前先 `taskkill //F //IM "ManWei.Api.exe"`；Docker/Linux 容器无此问题
 - **JWT Token UserId 类型** — `User.FindFirstValue` 返回 string，必须 `int.TryParse` 转换，不能直接赋值
 - **echarts-for-weixin 与微信基础库不兼容** — 情绪曲线改用原生 Canvas 2D API，不依赖 echarts-for-weixin
 - **DeepSeek tool_call_id 字段丢失** — 必须从原始 `JsonElement` 取，不能用 `ChatMessage` 类重建，否则报 400
@@ -106,3 +106,14 @@
 - 禁止在 `dotnet run` 运行时编译（ManWei.Api.exe 被锁定）
 - 禁止在 .NET 中使用 `DateTimeZoneHandling`（不存在，删掉）
 - 禁止在 SQL Server 唯一索引中放可空字段的显式 NULL（索引会失效）
+
+## 部署相关坑点
+
+- **前端 baseURL 硬编码 localhost:5150** — pc-admin 的 `src/api/index.js` L6 和 `src/views/UserManage.vue` L129 各有一处 `baseURL: 'http://localhost:5150'`。生产环境 nginx 反代后应改为 `baseURL: '/'`（请求路径已含 `/api`），否则所有请求打到 localhost:5150 → Connection Refused。用户端 pc-client 同理需检查。
+- **Vue Router 子路径部署需要双 base** — `vite build --base=/admin/` 只改静态资源路径（JS/CSS），Vue Router 的 `createWebHistory()` 也必须传 `'/admin/'` 参数，否则路由匹配不上 → 管理端空白页且 Console 无报错（静默失败）。
+- **alpine nginx 不自动加载 mime.types** — `nginx:alpine` 镜像的 `/etc/nginx/nginx.conf` 默认不 `include mime.types;`，导致所有 `.js` 文件返回 `Content-Type: text/plain`，浏览器拒绝加载 ES Module（`Expected a JavaScript module but server responded with MIME type of "text/plain"`）。**必须**在 `http` 块显式写 `include /etc/nginx/mime.types;` + `default_type application/octet-stream;`。
+- **docker-compose healthcheck 环境变量传递** — `test: /opt/mssql-tools18/bin/sqlcmd ... -P "$$SA_PASSWORD"` 中 `$$` 在 compose 解析后变为单 `$`，但 healthcheck 的 shell 环境**拿不到**容器的 `SA_PASSWORD` 变量。改为 `test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd ... -P \"$$SA_PASSWORD\" ..."]` 数组形式，且 `depends_on: condition: service_healthy` 强依赖 healthcheck → 不修会导致 api 容器无法启动（`dependency failed: unhealthy`）。
+- **腾讯云部署双重防火墙** — 服务器 OS 内 UFW **和**腾讯云控制台安全组是**两层独立规则**。OS 内 `ufw allow 443/tcp` 不足以让公网访问 443——还必须在腾讯云控制台"安全组"中添加入站规则。与此同理，任何新增端口都要两边都配。
+- **`docker compose config` 泄漏密钥** — 该命令会展开所有 `${}` 占位符并打印完整配置到 stdout。调试 compose 时用 `docker compose config --services` 只看服务列表，或用 `grep -v` 屏蔽敏感字段。不要裸跑 `docker compose config`。
+- **Docker 容器内 `dotnet ManWei.Api.dll` 不存在 Windows 进程锁定问题** — CLAUDE.md L86/L106 的 `taskkill /F /IM "ManWei.Api.exe"` 仅适用于 Windows 本地开发。Linux 容器没有 `FILE_SHARE_DELETE` 限制，`docker compose up -d --build` 直接重建容器即可。
+- **ManWeiDB 文件是 SQL Server NTBACKUP 格式** — 文件头是 `Microsoft SQL Server` NTBACKUP 标识（`file` 命令识别为 "Windows NTbackup archive NT"），不是 SQL 脚本、不是 `.mdf` 数据文件。只能用 `RESTORE DATABASE ... FROM DISK` 还原，且从 Windows 迁移到 Linux 时**必须**用 `WITH MOVE` 把 `D:\...\xxx.mdf` 重映射到 `/var/opt/mssql/data/xxx.mdf`。
