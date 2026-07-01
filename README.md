@@ -87,11 +87,13 @@ npm run dev
 | 文档 | 说明 |
 |---|---|
 | [docs/COLLABORATION.md](docs/COLLABORATION.md) | 接口对接文档（前后端协作契约） |
+| [docs/接口设计.md](docs/接口设计.md) | API 接口设计文档（72 个端点完整字段表） |
 | [docs/recommendation.md](docs/recommendation.md) | 推荐算法方法学（含 Bangumi 标签 + Top-5 投票机制） |
-| [docs/ai-assistant-status.md](docs/ai-assistant-status.md) | PC AI 助手实施完成报告 |
 | [docs/test-report/](docs/test-report/) | 测试报告（设计/执行/BUG/优化/回归/总结） |
 | [docs/PC用户端设计文档.md](docs/PC用户端设计文档.md) | PC 端完整设计文档 |
 | [docs/TECH_DEBT.md](docs/TECH_DEBT.md) | 技术债清单 |
+| [docs/DEVELOP_GUIDE.md](docs/DEVELOP_GUIDE.md) | 代码规范、存放规则与数据安全防御标准 |
+| [docs/FE.md](docs/FE.md) | PC 用户端前端约束 |
 
 ## 🐛 踩坑知识库
 
@@ -120,8 +122,8 @@ backend/ManWei.Api/tests/api-tests.http
 ManWei/
 ├── backend/                          # .NET 8 后端
 │   └── ManWei.Api/
-│       ├── Controllers/              # 8 个 REST 控制器
-│       ├── Services/                 # 13 个业务服务（含 Recommendation/ 子目录 7 个）
+│       ├── Controllers/              # 12 个 REST 控制器
+│       ├── Services/                 # 12 个根目录服务 + Recommendation/ 子目录 8 个算法模块
 │       │   ├── BaseAiAgentService.cs # AI 助手服务抽象类
 │       │   ├── BangumiService.cs     # Bangumi API 对接
 │       │   └── Recommendation/       # 推荐算法 7 个模块
