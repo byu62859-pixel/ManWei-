@@ -72,3 +72,35 @@ docs/~$*
 docs/test-report/*.docx
 docs/test-report/*.pptx
 tools/
+
+# ==========================================
+# 微信小程序 — miniprogram_npm / 私有配置（DEVELOP_GUIDE §二黑名单）
+# ==========================================
+miniprogram/miniprogram_npm/
+miniprogram/project.private.config.json
+
+# ==========================================
+# 后端用户上传文件（DEVELOP_GUIDE §二黑名单）
+# ==========================================
+backend/ManWei.Api/wwwroot/uploads/
+
+# ==========================================
+# 测试与覆盖率产物（DEVELOP_GUIDE §二黑名单）
+# ==========================================
+TestResults/
+coverage/
+
+# ==========================================
+# 更多环境/本地配置文件（DEVELOP_GUIDE §二模板）
+# ==========================================
+backend/ManWei.Api/appsettings.Local.json
+backend/ManWei.Api/appsettings.Production.json
+*.local
+
+# ==========================================
+# 前端包管理器调试日志（DEVELOP_GUIDE §二模板）
+# ==========================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
