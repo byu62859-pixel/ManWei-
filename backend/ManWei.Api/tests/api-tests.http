@@ -1,0 +1,327 @@
+### ManWei 项目接口测试脚本
+### 用途：覆盖 12 个核心用例，可在 VSCode REST Client 扩展中执行
+### 前置：后端 http://localhost:5150 已启动，Swagger 路径 /swagger
+
+@host = http://localhost:5150
+@username = testmanwei
+@password = Test123!
+
+###
+# === 模块 A：用户认证 ===
+
+### A0 注册测试账号（若已存在则返回 400，可忽略）
+# @name register
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{"username":"{{username}}","password":"{{password}}"}
+
+###
+# A1.1 邮箱登录 → 拿 JWT
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{"username":"{{username}}","password":"{{password}}"}
+
+###
+@token = {{login.response.body.data.token}}
+@userId = {{login.response.body.data.userId}}
+
+###
+# A1.2 获取当前用户（用 token）
+GET {{host}}/api/users/me
+Authorization: Bearer {{token}}
+
+###
+# A1.3 更新昵称（验证写操作）
+PUT {{host}}/api/users/me/nickname
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"nickName":"测试账号-已更新"}
+
+###
+# A2 无 token 请求 /me → 期望 401
+GET {{host}}/api/users/me
+
+###
+# A2b 错误密码登录 → 期望 401
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{"username":"{{username}}","password":"wrong_password"}
+
+###
+# === 模块 B：动漫检索 + 收藏 ===
+
+###
+# B1 搜索"进击的巨人"
+GET {{host}}/api/Favorites/search-anime?keyword=%E8%BF%9B%E5%87%BB%E7%9A%84%E5%B7%A8%E4%BA%BA
+Authorization: Bearer {{token}}
+
+###
+# B2 同步 Bangumi 详情（Bangumi ID = 118335，"进击的巨人 第二季"）
+POST {{host}}/api/Anime/Sync/118335
+Authorization: Bearer {{token}}
+
+###
+# B2b 查询刚同步的动漫（应在列表中）
+GET {{host}}/api/Anime/47
+Authorization: Bearer {{token}}
+
+###
+# B3.1 创建收藏（已存在的进击的巨人 animeId=47）
+# @name favCreate
+POST {{host}}/api/Favorites
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"animeId":47}
+
+###
+# 提取 favoriteId 备用
+@favId = 170
+
+###
+# B3.2 修改状态：在看（status=1），进度 5 集
+PUT {{host}}/api/Favorites/{{favId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"status":1,"progress":5}
+
+###
+# B3.3 修改状态：看过（status=2），评分 9
+PUT {{host}}/api/Favorites/{{favId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"status":2,"rating":9,"progress":25}
+
+###
+# B3.4 查自己的收藏列表
+GET {{host}}/api/Favorites?Page=1&PageSize=10
+Authorization: Bearer {{token}}
+
+###
+# B3.5 统计计数（按状态分组）
+GET {{host}}/api/Favorites/counts
+Authorization: Bearer {{token}}
+
+###
+# B3.6 检查是否已收藏动漫 47
+GET {{host}}/api/Favorites/check/47
+Authorization: Bearer {{token}}
+
+###
+# === 模块 C：情绪曲线 ===
+
+###
+# C1.1 记录第 1 集情绪=5（很燃）
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":1,"emotionLevel":5}
+
+###
+# C1.2 记录第 5 集情绪=4
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":5,"emotionLevel":4}
+
+###
+# C1.3 记录第 12 集情绪=3
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":12,"emotionLevel":3}
+
+###
+# C1.4 记录第 20 集情绪=5（高潮）
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":20,"emotionLevel":5}
+
+###
+# C1.5 记录第 25 集情绪=4（大结局）
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":25,"emotionLevel":4}
+
+###
+# C1.6 拉取该收藏的情绪曲线 → 期望返回 5 条
+GET {{host}}/api/EmotionCurves/{{favId}}
+Authorization: Bearer {{token}}
+
+###
+# C2 【边界】Episode 超过 TotalEpisodes=25，验证是否有兜底
+# 期望：要么 400，要么限制到 TotalEpisodes；CLAUDE.md L20 已知坑点
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":999,"emotionLevel":5}
+
+###
+# C2b 【边界】Episode=0（schema 要求 minimum=1，应 400）
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":0,"emotionLevel":3}
+
+###
+# C2c 【边界】emotionLevel=6（schema 要求 maximum=5，应 400）
+POST {{host}}/api/EmotionCurves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"episode":15,"emotionLevel":6}
+
+###
+# === 模块 D：情感标签 + 词云 ===
+
+###
+# D1.1 用户自定义标签 "热血"
+POST {{host}}/api/EmotionTags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"热血","animeId":47}
+
+###
+# D1.2 标签 "燃"
+POST {{host}}/api/EmotionTags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"燃","animeId":47}
+
+###
+# D1.3 标签 "剧情向"
+POST {{host}}/api/EmotionTags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"剧情向","animeId":47}
+
+###
+# D1.4 标签 "思考"
+POST {{host}}/api/EmotionTags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"思考","animeId":47}
+
+###
+# D1.5 标签 "冲击"
+POST {{host}}/api/EmotionTags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"冲击","animeId":47}
+
+###
+# D1.6 拉取已使用标签列表
+GET {{host}}/api/EmotionTags/used
+Authorization: Bearer {{token}}
+
+###
+# D1.7 拉取动漫 47 的词云聚合
+GET {{host}}/api/EmotionTags/anime/47/wordcloud
+Authorization: Bearer {{token}}
+
+###
+# D1.8 全局词云
+GET {{host}}/api/EmotionTags/wordcloud
+Authorization: Bearer {{token}}
+
+###
+# === 模块 E：观后感 ===
+
+###
+# E1.1 写短评
+# @name reviewCreate
+POST {{host}}/api/Reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"favoriteId":{{favId}},"content":"巨人的结局出人意料，作者对人性的刻画很深刻。"}
+
+###
+@reviewFavId = {{reviewCreate.response.body.data.favoriteId}}
+
+###
+# E1.2 查该收藏的观后感
+GET {{host}}/api/Reviews/{{favId}}
+Authorization: Bearer {{token}}
+
+###
+# E1.3 拉取观后感列表（分页）
+GET {{host}}/api/Reviews?Page=1&PageSize=10
+Authorization: Bearer {{token}}
+
+###
+# === 模块 F：推荐 ===
+
+###
+# F1 混合推荐 Top-K（带 deterministic 截图复现）
+GET {{host}}/api/recommendations?limit=10&deterministic=true
+Authorization: Bearer {{token}}
+
+###
+# F1b 推荐不带确定性参数（验证两种结果一致性）
+GET {{host}}/api/recommendations?limit=10
+Authorization: Bearer {{token}}
+
+###
+# === 模块 G：AI 助手（需 DeepSeek API Key；如未配置会 401/500） ===
+
+###
+# G1 PC 端流式对话 - 单条消息
+POST {{host}}/api/AiAgent/chat
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"message":"推荐一部类似进击的巨人的热血番","history":[]}
+
+###
+# G2 小程序端 AI 对话
+POST {{host}}/api/WxAiAgent/chat
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"message":"帮我推荐","history":[]}
+
+###
+# === Dashboard 后台（无需特殊权限读路径） ===
+
+###
+# 仪表盘 - 今日概览
+GET {{host}}/api/Dashboard/today-overview
+Authorization: Bearer {{token}}
+
+###
+# 仪表盘 - 动漫榜
+GET {{host}}/api/Dashboard/anime-rank?limit=10
+Authorization: Bearer {{token}}
+
+###
+# 仪表盘 - 标签榜
+GET {{host}}/api/Dashboard/tag-rank?limit=10
+Authorization: Bearer {{token}}
+
+###
+# === 性能测试参考（手动运行） ===
+# PowerShell 示例：
+# Measure-Command { Invoke-WebRequest "http://localhost:5150/api/recommendations?limit=10&deterministic=true" -Headers @{Authorization="Bearer $env:TOKEN"} }
+# 输出 P50/P95：跑 5 次取平均，输出 Min/Max/Avg

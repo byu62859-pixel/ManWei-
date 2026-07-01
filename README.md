@@ -28,7 +28,7 @@
 
 - **AI 集成**：自研 AI 助手服务抽象类，支撑管理端 / PC 端 / 小程序端三端复用；为情绪分类设计多版 Prompt 模板
 - **跨端开发**：Vue 3 管理后台 + React 19+TS 用户端 + 微信小程序（原生 Canvas 2D 自绘折线图）
-- **后端工程**：.NET 8 + EF Core 8 + SQL Server，8 张业务表 / 11 个索引（含复合唯一索引）
+- **后端工程**：.NET 8 + EF Core 8 + SQL Server，8 张业务表 / 22 个索引 + 1 个 CHECK 约束（含复合唯一索引）
 - **数据采集**：对接 Bangumi V0 REST API（5 个接口），独立处理异构字段与缺失值清洗
 - **测试与文档**：12 个功能用例 + 3 个性能用例 + 15+ 份 Markdown 项目文档
 
@@ -126,7 +126,7 @@ ManWei/
 │       │   ├── BangumiService.cs     # Bangumi API 对接
 │       │   └── Recommendation/       # 推荐算法 7 个模块
 │       ├── Models/                   # 8 个实体
-│       ├── Data/AppDbContext.cs      # EF Core DbContext（11 个索引配置）
+│       ├── Data/AppDbContext.cs      # EF Core DbContext（22 索引 + 1 CHECK 约束配置）
 │       ├── Migrations/               # 13 个 EF 迁移
 │       └── tests/api-tests.http      # 37 个 REST Client 请求
 ├── frontend/                         # 前端
