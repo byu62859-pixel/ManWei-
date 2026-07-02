@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5150'
+const BASE_URL = 'https://162.14.99.221'
 
 function request(url, method, data, timeout = 10000) {
   const token = wx.getStorageSync('token')

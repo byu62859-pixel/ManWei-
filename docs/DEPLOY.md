@@ -204,6 +204,48 @@ nginx:alpine 镜像**不会自动 `include mime.types`**——必须在 http 块
 
 ---
 
+## 五、踩坑日志（按时间顺序）
+
+### 2026-07-02 — Bangumi API 国内服务器访问难题
+
+| 时段 | 问题 | 排查 | 解决 |
+|---|---|---|---|
+| 15:17 | `api.bgm.tv` 100% 丢包 | DNS 通，IP `31.13.70.33` 不通 | 确认国内服务器被墙 |
+| 16:00 | 想用 Mihomo 代理绕过 | 下载 mihomo 1.19.27 二进制，scp 推上去 | 上传成功 |
+| 16:13 | Mihomo 启动失败 | 缺 Country.mmdb | 改用极简配置 `geodata-mode: false` |
+| 16:15 | 配置 YAML 格式错 | heredoc 嵌入复杂内容失败 | 改用 `printf` 分步写入 |
+| 16:18 | Mihomo 退出 | `error = can't download MMDB` | 极简配置 `mode: global` 跳过 GEOIP |
+| 16:20 | Mihomo 启动成功 | 7890 端口监听 | ✅ |
+| 16:30 | curl 走代理测试 | 第一次 `HTTP 400` | 改用 SOCKS5 测试 |
+| 16:50 | 测试代理通 | `HTTP 200 Connection established` | ✅ 但仅本地容器测过 |
+| 17:10 | .NET HttpClient 30s 超时 | .NET 不读环境变量代理 | 改用 `ConfigurePrimaryHttpMessageHandler` 注入 |
+| 17:30 | 改大写 HTTP_PROXY | 之前没生效 | 改小写 `http_proxy` |
+| 17:40 | 尝试 `HttpClient.DefaultProxy` | 仍不生效 | 删除该方案 |
+| 17:50 | 改用 `HttpClientHandler.Proxy` | 推送后仍超时 | 代理节点从国内服务器连不上海外 |
+| 18:00 | 尝试换用 anytls 直连节点 | 节点本来也不在 proxies 中 | 改用新加坡/日本节点 |
+| 18:30 | 节点还是连不上 | 机场节点对腾讯云机房 IP 反向封锁 | **问题升级：技术方案有效，但需要支持国内云的中转节点** |
+
+### 根本结论（重要）
+
+> **国内云服务器访问 Bangumi 的物理路径被墙。**  
+> Mihomo 代理方案本身可行，但需要：
+> 1. 机场提供**专用的国内中转节点**（普通节点会被机场反向封锁）
+> 2. 或自建香港 VPS 做中转  
+> 3. 或换海外云服务器（香港/新加坡节点）
+
+**Agent 复盘**：
+- ❌ 第一次接到 "搜索不到" 时，应**直接判断国内服务器被墙**，而不是让用户绕一圈配置 Mihomo
+- ❌ 浪费 2 小时排查 MMDB 闪退、节点失效、HttpClient 超时等次要问题
+- ✅ 最终技术方案（`ConfigurePrimaryHttpMessageHandler`）值得保留——海外服务器上立即能用
+- ✅ `Timeout = 5s` 兜底值得保留——防止本地搜索被卡住
+
+### 短期方案
+
+明天的课程展示**只用本地 136 部动漫**——这个不受网络限制。  
+微信小程序端用**PC 模拟器**（微信开发者工具左侧"模拟器"）演示，绕过域名白名单。
+
+---
+
 ## 五、下次部署需要的文件清单
 
 | 文件 | 说明 | 是否入库 |
