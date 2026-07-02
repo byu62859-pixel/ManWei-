@@ -23,6 +23,15 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 全局 HTTP 代理（从环境变量读取，供容器内 .NET HttpClient 使用）
+var proxyUrl = Environment.GetEnvironmentVariable("http_proxy")
+            ?? Environment.GetEnvironmentVariable("HTTP_PROXY");
+if (!string.IsNullOrWhiteSpace(proxyUrl))
+{
+    HttpClient.DefaultProxy = new System.Net.WebProxy(proxyUrl);
+    Console.WriteLine($"已配置 HTTP 代理: {proxyUrl}");
+}
+
 // 注册 HttpClient for Bangumi API（带 User-Agent 和 Bearer Token）
 builder.Services.AddHttpClient<IBangumiService, BangumiService>((services, client) =>
 {
