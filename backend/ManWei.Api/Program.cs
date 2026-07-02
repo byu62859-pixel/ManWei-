@@ -29,7 +29,7 @@ builder.Services.AddHttpClient<IBangumiService, BangumiService>((services, clien
     client.BaseAddress = new Uri(builder.Configuration["BangumiApi:BaseUrl"] ?? "https://api.bgm.tv/v0");
     client.DefaultRequestHeaders.UserAgent.ParseAdd(
         builder.Configuration["BangumiApi:UserAgent"] ?? "ManWei-App/1.0 (Student-Project)");
-    client.Timeout = TimeSpan.FromSeconds(30);
+    client.Timeout = TimeSpan.FromSeconds(5);
 
     // 添加 Bearer Token 认证
     var accessToken = builder.Configuration["BangumiApi:AccessToken"];
